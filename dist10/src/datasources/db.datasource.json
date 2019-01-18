@@ -4,14 +4,14 @@
         "connector": "mysql",
         "host": "localhost",
         "port": 3306,
-        "database": "bookshop",
+        "database": "testmysl",
         "user": "root",
         "password": "123@abc"
     },
     "databaselive": {
-        "name": "d2oncpnu9mfefk",
+        "name": "mydb",
         "connector": "postgresql",
-        "url": "postgres://eqxpwxuxlcscqc:5c9c331ceaebc92e2b2127fa7522aa4dbd99521adad55074a63dde82767c4092@ec2-107-20-183-142.compute-1.amazonaws.com:5432/d2oncpnu9mfefk",
+        "url": "postgres://vwqoemcsxofiwf:e75dd311452ae40aede74845f9aa242f50c7bfd85aa3c5a36ea4780191922468@ec2-54-247-125-137.eu-west-1.compute.amazonaws.com:5432/d6aldqifkj300h",
         "ssl": true
     },
     "storage": {
@@ -43,9 +43,5 @@
     "email": {
         "user": "anku@rudrainnovative.com",
         "password": "anku@1234"
-    },
-    "mailchimp": {
-        "apikey": "e043c1b96d4bd3c16fe89a261667b0d2-us20",
-        "listId": "79ce61a82e"
     }
 }
