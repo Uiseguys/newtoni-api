@@ -20,7 +20,7 @@ const core_1 = require("@loopback/core");
 const repository_1 = require("@loopback/repository");
 const config = require("./db.datasource.json");
 let DbDataSource = class DbDataSource extends repository_1.juggler.DataSource {
-    constructor(dsConfig = config.database) {
+    constructor(dsConfig = config.databaselive) {
         super(dsConfig);
     }
 };

@@ -9,9 +9,9 @@
         "password": "123@abc"
     },
     "databaselive": {
-        "name": "d2oncpnu9mfefk",
+        "name": "d8hdgenlhcrkms",
         "connector": "postgresql",
-        "url": "postgres://eqxpwxuxlcscqc:5c9c331ceaebc92e2b2127fa7522aa4dbd99521adad55074a63dde82767c4092@ec2-107-20-183-142.compute-1.amazonaws.com:5432/d2oncpnu9mfefk",
+        "url": "postgres://muytyymfdvnsut:015ca8e00c26250e2e7c2eeacf1a359a64a533091def445ccc1dfe7bb16f2cfa@ec2-23-21-86-22.compute-1.amazonaws.com:5432/d8hdgenlhcrkms",
         "ssl": true
     },
     "storage": {

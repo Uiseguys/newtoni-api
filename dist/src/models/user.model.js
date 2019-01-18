@@ -66,7 +66,7 @@ __decorate([
 __decorate([
     repository_1.property({
         type: 'boolean',
-        default: 0,
+        default: false,
     }),
     __metadata("design:type", Boolean)
 ], CustomUser.prototype, "emailVerified", void 0);
