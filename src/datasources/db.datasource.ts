@@ -12,7 +12,12 @@ export class DbDataSource extends juggler.DataSource {
 
   constructor(
     @inject('datasources.config.db', { optional: true })
-    dsConfig: object = config.databaselive,
+    dsConfig: object = {
+      "name": process.env.DATABASE_NAME,
+      "connector": "postgresql",
+      "url":process.env.DATABASE_URL,
+      "ssl": true
+    },
   ) {
     super(dsConfig);
   }

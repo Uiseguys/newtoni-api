@@ -29,10 +29,10 @@ let NewsletterController = class NewsletterController {
         });
         request({
             method: 'POST',
-            url: 'https://us20.api.mailchimp.com/3.0/lists/' + config.mailchimp.listId + '/members',
+            url: 'https://us20.api.mailchimp.com/3.0/lists/' + process.env.mailchimp_listId + '/members',
             body: subscriber,
             headers: {
-                Authorization: 'apikey ' + config.mailchimp.apiKey,
+                Authorization: 'apikey ' + process.env.mailchimp_api,
                 'Content-Type': 'application/json'
             }
         }, function (error, response, body) {

@@ -18,9 +18,13 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@loopback/core");
 const repository_1 = require("@loopback/repository");
-const config = require("./db.datasource.json");
 let DbDataSource = class DbDataSource extends repository_1.juggler.DataSource {
-    constructor(dsConfig = config.databaselive) {
+    constructor(dsConfig = {
+        "name": process.env.DATABASE_NAME,
+        "connector": "postgresql",
+        "url": process.env.DATABASE_URL,
+        "ssl": true
+    }) {
         super(dsConfig);
     }
 };

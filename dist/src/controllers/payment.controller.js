@@ -21,9 +21,10 @@ const emailtemplate = require("email-templates");
 const models_1 = require("../models");
 const repositories_1 = require("../repositories");
 const repositories_2 = require("../repositories");
-const config = require("../datasources/db.datasource.json");
+//   import * as config from '../datasources/db.datasource.json';
 const nodemailer = require("nodemailer");
 const authentication_1 = require("@loopback/authentication");
+var config = { paypaldev: process.env };
 let PaymentController = class PaymentController {
     constructor(orderRepository, settingRepository, user) {
         this.orderRepository = orderRepository;
@@ -124,8 +125,8 @@ let PaymentController = class PaymentController {
                             var transport = nodemailer.createTransport({
                                 service: 'gmail',
                                 auth: {
-                                    user: config.email.user,
-                                    pass: config.email.password
+                                    user: process.env.Mailer_User,
+                                    pass: process.env.Mailer_Pass
                                 }
                             });
                             let templates = JSON.parse(emailtemplate.message);

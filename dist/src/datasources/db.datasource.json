@@ -8,12 +8,6 @@
         "user": "root",
         "password": "123@abc"
     },
-    "databaselive": {
-        "name": "d8hdgenlhcrkms",
-        "connector": "postgresql",
-        "url": "postgres://muytyymfdvnsut:015ca8e00c26250e2e7c2eeacf1a359a64a533091def445ccc1dfe7bb16f2cfa@ec2-23-21-86-22.compute-1.amazonaws.com:5432/d8hdgenlhcrkms",
-        "ssl": true
-    },
     "storage": {
         "name": "storage",
         "connector": "loopback-component-storage",
@@ -21,31 +15,5 @@
         "nameConflict": "makeUnique",
         "root": "./server/storage",
         "container": "schneckenhof-dev"
-    },
-    "paypaldev": {
-        "mode": "sandbox",
-        "client_id": "AYSEcGNHsQ2reZChT7Wxg9-AiAdkPbVywEndCMJEMBZBT7mWt6WeZSCIXx6-y6w9dekbgDiDoYwRnObP",
-        "client_secret": "EGQZJQxdB6Sv1b0VvD7GnsAC3d4IT56ahuba4X0aFXMzduv06sLa9-fLPW3TTCFcYDGYGrDcl4x-6DZx",
-        "return_url": "http://localhost:4000/api/payment/execute",
-        "cancel_url": "http://192.168.1.105/checkout",
-        "success_url": "http://192.168.1.105/danke",
-        "fail_url": "http://192.168.1.105/"
-    },
-    "paypalprod": {
-        "mode": "sandbox",
-        "client_id": "AYSEcGNHsQ2reZChT7Wxg9-AiAdkPbVywEndCMJEMBZBT7mWt6WeZSCIXx6-y6w9dekbgDiDoYwRnObP",
-        "client_secret": "EGQZJQxdB6Sv1b0VvD7GnsAC3d4IT56ahuba4X0aFXMzduv06sLa9-fLPW3TTCFcYDGYGrDcl4x-6DZx",
-        "return_url": "https://dev-schneckenhof-api.herokuapp.com/api/payment/execute",
-        "cancel_url": "https://dev-schneckenhof-frontend.herokuapp.com/checkout",
-        "success_url": "https://dev-schneckenhof-frontend.herokuapp.com/danke",
-        "fail_url": "https://dev-schneckenhof-frontend.herokuapp.com/"
-    },
-    "email": {
-        "user": "anku@rudrainnovative.com",
-        "password": "anku@1234"
-    },
-    "mailchimp": {
-        "apikey": "02fcafa8b758981ac763a23f7db7fd6f-us20",
-        "listId": "8b117ab399"
     }
 }
