@@ -26,8 +26,7 @@ import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authent
 export class SettingController {
   constructor(
     @repository(SettingRepository)
-    public settingRepository: SettingRepository,
-    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
+    public settingRepository: SettingRepository
   ) { }
   
     @post('/Settings/upsertWithWhere', {

@@ -19,9 +19,8 @@ const models_1 = require("../models");
 const repositories_1 = require("../repositories");
 const authentication_1 = require("@loopback/authentication");
 let SettingController = class SettingController {
-    constructor(settingRepository, user) {
+    constructor(settingRepository) {
         this.settingRepository = settingRepository;
-        this.user = user;
     }
     async upsertWithWhere(request, response, where) {
         let self = this;
@@ -79,7 +78,6 @@ let SettingController = class SettingController {
     }
 };
 __decorate([
-    authentication_1.authenticate('BasicStrategy'),
     rest_1.post('/Settings/upsertWithWhere', {
         responses: {
             '200': {
@@ -171,8 +169,7 @@ __decorate([
 ], SettingController.prototype, "deleteById", null);
 SettingController = __decorate([
     __param(0, repository_1.repository(repositories_1.SettingRepository)),
-    __param(1, context_1.inject(authentication_1.AuthenticationBindings.CURRENT_USER, { optional: true })),
-    __metadata("design:paramtypes", [repositories_1.SettingRepository, Object])
+    __metadata("design:paramtypes", [repositories_1.SettingRepository])
 ], SettingController);
 exports.SettingController = SettingController;
 //# sourceMappingURL=setting.controller.js.map
