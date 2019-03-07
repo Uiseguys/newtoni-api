@@ -44,9 +44,9 @@ let PaymentController = class PaymentController {
                     created: new Date(),
                 }, function (err, instance) {
                     paypal.configure({
-                        mode: config.paypaldev.mode,
-                        client_id: config.paypaldev.client_id,
-                        client_secret: config.paypaldev.client_secret
+                        mode: config.paypaldev.mode || "test",
+                        client_id: config.paypaldev.client_id || "test",
+                        client_secret: config.paypaldev.client_secret || "test"
                     });
                     let create_payment_json = {
                         intent: "sale",
@@ -54,8 +54,8 @@ let PaymentController = class PaymentController {
                             "payment_method": "paypal"
                         },
                         redirect_urls: {
-                            return_url: config.paypaldev.return_url,
-                            cancel_url: config.paypaldev.cancel_url
+                            return_url: config.paypaldev.return_url || "test",
+                            cancel_url: config.paypaldev.cancel_url || "test"
                         },
                         transactions: [
                             {
@@ -158,9 +158,9 @@ let PaymentController = class PaymentController {
         return new Promise((resolve, reject) => {
             let self = this;
             paypal.configure({
-                mode: config.paypaldev.mode,
-                client_id: config.paypaldev.client_id,
-                client_secret: config.paypaldev.client_secret
+                mode: config.paypaldev.mode || "test",
+                client_id: config.paypaldev.client_id || "test",
+                client_secret: config.paypaldev.client_secret || "test"
             });
             const { paymentId, PayerID } = request.query;
             paypal.payment.get(paymentId, function (err, payment) {

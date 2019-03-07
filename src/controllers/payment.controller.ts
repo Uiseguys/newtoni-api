@@ -67,9 +67,9 @@ export class PaymentController {
                     }, function (err: any, instance: any) {
 
                         paypal.configure({
-                            mode: config.paypaldev.mode,
-                            client_id: config.paypaldev.client_id,
-                            client_secret: config.paypaldev.client_secret
+                            mode: config.paypaldev.mode || "test",
+                            client_id: config.paypaldev.client_id || "test",
+                            client_secret: config.paypaldev.client_secret || "test"
                         });
                         let create_payment_json: any = {
                             intent: "sale",
@@ -77,8 +77,8 @@ export class PaymentController {
                                 "payment_method": "paypal"
                             },
                             redirect_urls: {
-                                return_url: config.paypaldev.return_url,
-                                cancel_url: config.paypaldev.cancel_url
+                                return_url: config.paypaldev.return_url || "test",
+                                cancel_url: config.paypaldev.cancel_url || "test"
                             },
                             transactions: [
                                 {
@@ -194,9 +194,9 @@ export class PaymentController {
             let self = this;
             paypal.configure(
                 {
-                    mode: config.paypaldev.mode,
-                    client_id: config.paypaldev.client_id,
-                    client_secret: config.paypaldev.client_secret
+                    mode: config.paypaldev.mode || "test",
+                    client_id: config.paypaldev.client_id || "test",
+                    client_secret: config.paypaldev.client_secret || "test"
                 }
             );
 

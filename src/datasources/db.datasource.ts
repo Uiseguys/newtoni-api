@@ -13,9 +13,9 @@ export class DbDataSource extends juggler.DataSource {
   constructor(
     @inject('datasources.config.db', { optional: true })
     dsConfig: object = {
-      "name": process.env.DATABASE_NAME,
+      "name": process.env.DATABASE_NAME || "deokbd5st1l65q",
       "connector": "postgresql",
-      "url":process.env.DATABASE_URL,
+      "url":process.env.DATABASE_URL || "postgres://auncatpokxioin:3fb3ddcef6bc0f841e523caed5c0db765942003f4d266fba02446754cec0b273@ec2-54-163-234-88.compute-1.amazonaws.com:5432/deokbd5st1l65q",
       "ssl": true
     },
   ) {
