@@ -70,6 +70,23 @@ let SettingController = class SettingController {
       async findById(@param.path.number('id') id: number): Promise<Setting> {
         return await this.settingRepository.findById(id);
       } */
+    async upsertWithWheres(request, response, where) {
+        let self = this;
+        this.settingRepository.find({ where: { key: "netlifyHook" } }, function (err, settingInstance) {
+            if (settingInstance.length > 0) {
+                self.settingRepository.updateAll({ value: request.body }, { key: "netlifyHook" });
+            }
+            else {
+                let createjson = {
+                    id: Math.floor(1000 + Math.random() * 9000),
+                    key: "netlifyHook",
+                    value: request.body,
+                };
+                self.settingRepository.create(createjson);
+            }
+        });
+        //return await this.settingRepository.create(setting);
+    }
     async updateById(id, setting) {
         await this.settingRepository.updateById(id, setting);
     }
@@ -138,6 +155,35 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], SettingController.prototype, "find", null);
+__decorate([
+    rest_1.post('/Settings/netlify', {
+        responses: {
+            '200': {
+                description: 'Setting model instance',
+                content: { 'application/json': { schema: { 'x-ts-type': models_1.Setting } } },
+            },
+        },
+    }),
+    __param(0, rest_1.requestBody({
+        description: 'data',
+        content: {
+            'application/json': {
+                schema: {
+                    type: 'object',
+                    properties: {
+                        key: { type: 'string' },
+                        value: {
+                            type: 'object',
+                        }
+                    },
+                },
+            },
+        },
+    })), __param(0, context_1.inject(rest_1.RestBindings.Http.REQUEST)), __param(1, context_1.inject(rest_1.RestBindings.Http.RESPONSE)), __param(2, rest_1.param.query.object('where', rest_1.getWhereSchemaFor(models_1.Setting))),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], SettingController.prototype, "upsertWithWheres", null);
 __decorate([
     authentication_1.authenticate('BasicStrategy'),
     rest_1.patch('/Settings/{id}', {

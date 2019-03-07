@@ -9,6 +9,7 @@ export declare class SettingController {
     upsertWithWhere(request: Request, response: Response, where?: Where): Promise<void>;
     count(where?: Where): Promise<Count>;
     find(filter?: Filter): Promise<Setting[]>;
+    upsertWithWheres(request: Request, response: Response, where?: Where): Promise<void>;
     updateById(id: number, setting: Setting): Promise<void>;
     deleteById(id: number): Promise<void>;
 }
