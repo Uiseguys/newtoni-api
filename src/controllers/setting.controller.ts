@@ -30,7 +30,6 @@ export class SettingController {
     @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
   ) { }
   
-    @authenticate('BasicStrategy')
     @post('/Settings/upsertWithWhere', {
       responses: {
         '200': {
