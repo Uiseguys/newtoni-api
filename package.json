@@ -1,6 +1,6 @@
 {
   "name": "newtoni-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "newtoni api",
   "keywords": [
     "loopback-application",
@@ -25,9 +25,9 @@
     "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
     "posttest": "npm run lint",
     "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
-      "docker:build": "docker build -t newtoni-api .",
+    "docker:build": "docker build -t newtoni-api .",
     "docker:run": "docker run -p 3000:3000 -d newtoni-api",
-      "migrate": "node ./dist/migrate",
+    "migrate": "node ./dist/migrate",
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
     "prepublishOnly": "npm run test"
@@ -57,16 +57,16 @@
   },
   "devDependencies": {
     "@loopback/build": "^2.0.5",
-    "source-map-support": "^0.5.12",
+    "@loopback/eslint-config": "^2.0.2",
     "@loopback/testlab": "^1.7.1",
     "@types/node": "^10.14.13",
-        "@typescript-eslint/parser": "^1.13.0",
     "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@loopback/eslint-config": "^2.0.2",
+    "@typescript-eslint/parser": "^1.13.0",
     "eslint": "^6.1.0",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-eslint-plugin": "^2.1.0",
     "eslint-plugin-mocha": "^6.0.0",
-        "typescript": "~3.5.3"
+    "source-map-support": "^0.5.12",
+    "typescript": "~3.5.3"
   }
 }
