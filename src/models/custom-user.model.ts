@@ -1,36 +1,53 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({settings: {strict: false}})
-export class News extends Entity {
+export class CustomUser extends Entity {
+  @property({
+    type: 'object',
+    default: {},
+  })
+  settings?: object;
+
   @property({
     type: 'number',
-    id: true,
   })
   id?: number;
 
   @property({
     type: 'string',
+  })
+  realm?: string;
+
+  @property({
+    type: 'string',
+    id: true,
     required: true,
   })
-  title: string;
+  username: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  author: string;
+  password: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  post: string;
+  email: string;
 
   @property({
-    type: 'date',
-    required: true,
+    type: 'boolean',
+    default: 0,
   })
-  date: string;
+  emailVerified?: boolean;
+
+  @property({
+    type: 'string',
+    default: null,
+  })
+  verificationToken?: string;
 
   // Define well-known properties here
 
@@ -38,13 +55,13 @@ export class News extends Entity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
-  constructor(data?: Partial<News>) {
+  constructor(data?: Partial<CustomUser>) {
     super(data);
   }
 }
 
-export interface NewsRelations {
+export interface CustomUserRelations {
   // describe navigational properties here
 }
 
-export type NewsWithRelations = News & NewsRelations;
+export type CustomUserWithRelations = CustomUser & CustomUserRelations;
