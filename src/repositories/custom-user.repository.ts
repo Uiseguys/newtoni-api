@@ -5,7 +5,7 @@ import {inject} from '@loopback/core';
 
 export class CustomUserRepository extends DefaultCrudRepository<
   CustomUser,
-  typeof CustomUser.prototype.username,
+  typeof CustomUser.prototype.id,
   CustomUserRelations
 > {
   constructor(@inject('datasources.localdb') dataSource: LocaldbDataSource) {

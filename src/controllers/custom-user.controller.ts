@@ -112,7 +112,7 @@ export class CustomUserController {
       },
     },
   })
-  async findById(@param.path.string('id') id: string): Promise<CustomUser> {
+  async findById(@param.path.number('id') id: number): Promise<CustomUser> {
     return this.customUserRepository.findById(id);
   }
 
@@ -124,7 +124,7 @@ export class CustomUserController {
     },
   })
   async updateById(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @requestBody({
       content: {
         'application/json': {
@@ -145,7 +145,7 @@ export class CustomUserController {
     },
   })
   async replaceById(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @requestBody() customUser: CustomUser,
   ): Promise<void> {
     await this.customUserRepository.replaceById(id, customUser);
@@ -158,7 +158,7 @@ export class CustomUserController {
       },
     },
   })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
+  async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.customUserRepository.deleteById(id);
   }
 }

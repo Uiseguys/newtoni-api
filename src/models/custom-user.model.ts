@@ -10,6 +10,7 @@ export class CustomUser extends Entity {
 
   @property({
     type: 'number',
+    id: true,
   })
   id?: number;
 
@@ -20,7 +21,6 @@ export class CustomUser extends Entity {
 
   @property({
     type: 'string',
-    id: true,
     required: true,
   })
   username: string;
