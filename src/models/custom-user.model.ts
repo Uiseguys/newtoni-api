@@ -10,6 +10,7 @@ export class CustomUser extends Entity {
 
   @property({
     type: 'number',
+    generated: true,
     id: true,
   })
   id?: number;

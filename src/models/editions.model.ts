@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({settings: {strict: false}})
-export class News extends Entity {
+export class Editions extends Entity {
   @property({
     type: 'number',
     generated: true,
@@ -51,13 +51,13 @@ export class News extends Entity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
-  constructor(data?: Partial<News>) {
+  constructor(data?: Partial<Editions>) {
     super(data);
   }
 }
 
-export interface NewsRelations {
+export interface EditionsRelations {
   // describe navigational properties here
 }
 
-export type NewsWithRelations = News & NewsRelations;
+export type EditionsWithRelations = Editions & EditionsRelations;
