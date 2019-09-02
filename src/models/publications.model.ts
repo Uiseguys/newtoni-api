@@ -11,7 +11,7 @@ export class Publications extends Entity {
 
   @property({
     type: 'object',
-    default: '{}',
+    default: {},
   })
   seo?: object;
 
