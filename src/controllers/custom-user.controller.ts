@@ -16,9 +16,14 @@ import {
   put,
   del,
   requestBody,
+  RestBindings,
+  Response,
+  Request,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {CustomUser} from '../models';
 import {CustomUserRepository} from '../repositories';
+import * as bcrypt from 'bcrypt';
 
 export class CustomUserController {
   constructor(
@@ -44,6 +49,7 @@ export class CustomUserController {
     })
     customUser: Omit<CustomUser, 'id'>,
   ): Promise<CustomUser> {
+    customUser.password = bcrypt.hashSync(customUser.password, 10);
     return this.customUserRepository.create(customUser);
   }
 
@@ -161,4 +167,88 @@ export class CustomUserController {
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.customUserRepository.deleteById(id);
   }
+
+  @post('custom-users/login', {
+    responses: {
+      '200': {
+        description: 'User login success',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(CustomUser, {partial: true}),
+          },
+        },
+      },
+    },
+  })
+  async login(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(CustomUser, {
+            exclude: [
+              'settings',
+              'id',
+              'realm',
+              'username',
+              'emailVerified',
+              'verificationToken',
+            ],
+          }),
+        },
+      },
+    })
+    @inject(RestBindings.Http.REQUEST)
+    request: Request,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+  ): Promise<Object> {
+    return new Promise<object>((resolve, reject) => {
+      this.customUserRepository.find(
+        {where: {email: request.body.email}},
+        function(err: any, userInstance: any) {
+          if (userInstance.length > 0) {
+            bcrypt.compare(
+              request.body.password,
+              userInstance[0].password,
+              function(err: any, match: any) {
+                if (match) {
+                  resolve(userInstance[0]);
+                } else {
+                  let msg = {
+                    error: {
+                      message: 'login failed',
+                    },
+                  };
+                  resolve(response.status(401).send(msg));
+                }
+              },
+            );
+          } else {
+            let msg = {
+              error: {
+                message: 'login failed',
+              },
+            };
+            resolve(response.status(401).send(msg));
+          }
+        },
+      );
+    });
+  }
+
+  @post('/custom-users/logout', {
+    responses: {
+      '200': {
+        description: 'User logout success',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(CustomUser, {partial: true}),
+          },
+        },
+      },
+    },
+  })
+  async logout(
+    @requestBody() @inject(RestBindings.Http.REQUEST) request: Request,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+  ): Promise<void> {}
 }
