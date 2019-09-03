@@ -19,31 +19,57 @@ export class Publications extends Entity {
     type: 'string',
     required: true,
   })
-  title: string;
+  type: string;
+
+  @property({
+    type: 'string',
+  })
+  name?: string;
+
+  @property({
+    type: 'number',
+    required: true,
+    default: 0,
+  })
+  price: number;
 
   @property({
     type: 'string',
     required: true,
   })
-  author: string;
+  image: string;
+
+  @property({
+    type: 'boolean',
+    required: true,
+    default: true,
+  })
+  availability: boolean;
+
+  @property({
+    type: 'number',
+    required: true,
+    default: 0,
+  })
+  content: number;
+
+  @property({
+    type: 'number',
+    required: true,
+    default: 0,
+  })
+  priority: number;
+
+  @property({
+    type: 'number',
+    default: 0,
+  })
+  no: number;
 
   @property({
     type: 'string',
-    required: true,
   })
-  post: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  create_time?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  update_time?: string;
+  description: string;
 
   // Define well-known properties here
 
