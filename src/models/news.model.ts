@@ -34,6 +34,11 @@ export class News extends Entity {
   post: string;
 
   @property({
+    type: 'string',
+  })
+  image: string;
+
+  @property({
     type: 'date',
     default: '$now',
   })
@@ -41,7 +46,6 @@ export class News extends Entity {
 
   @property({
     type: 'date',
-    default: '$now',
   })
   update_time?: string;
 

@@ -17,14 +17,8 @@ export class Publications extends Entity {
 
   @property({
     type: 'string',
-    required: true,
   })
-  type: string;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
+  name: string;
 
   @property({
     type: 'number',
@@ -35,7 +29,6 @@ export class Publications extends Entity {
 
   @property({
     type: 'string',
-    required: true,
   })
   image: string;
 

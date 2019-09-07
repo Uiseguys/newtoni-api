@@ -34,6 +34,11 @@ export class Editions extends Entity {
   post: string;
 
   @property({
+    type: 'string',
+  })
+  image: string;
+
+  @property({
     type: 'date',
     default: '$now',
   })
