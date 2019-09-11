@@ -58,6 +58,7 @@
     "bcrypt": "^3.0.6",
     "graphql": "^14.5.4",
     "loopback-connector-mysql": "^5.4.2",
+    "loopback-connector-postgresql": "^3.7.0",
     "openapi-to-graphql": "^1.5.0"
   },
   "devDependencies": {
