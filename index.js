@@ -13,7 +13,7 @@ if (require.main === module) {
         setServersFromRequest: true,
       },
       cors: {
-        origin: 'http://newtoni-admin.netlify.com',
+        origin: 'https://newtoni-admin.netlify.com',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
         optionsSuccessStatus: 204,
