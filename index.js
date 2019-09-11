@@ -6,7 +6,7 @@ if (require.main === module) {
   // Run the application
   const config = {
     rest: {
-      port: +(process.env.PORT || 3000),
+      port: +(process.env.PORT || 443),
       host: process.env.HOST || 'newtoni-api.herokuapp.com',
       openApiSpec: {
         // useful when used with OpenAPI-to-GraphQL to locate your application
