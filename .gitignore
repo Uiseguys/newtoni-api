@@ -64,5 +64,4 @@ typings/
 *.tsbuildinfo
 
 # Package Manager lock files
-package.lock
-yarn.lock
+*.lock
