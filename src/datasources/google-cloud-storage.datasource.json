@@ -1,0 +1,6 @@
+{
+  "name": "GoogleCloudStorage",
+  "connector": "loopback-connector-google-cloud-datastore",
+  "projectId": "weingut-schneckenhof",
+  "keyFilename": "./src/datasources/google/serviceAccount.json"
+}
