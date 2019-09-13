@@ -1,2 +1,2 @@
-export * from './amazonpostgres.datasource';
-export * from './google-cloud-storage.datasource';
+export * from './amazon-postgres.datasource';
+export * from './google-storage.datasource';

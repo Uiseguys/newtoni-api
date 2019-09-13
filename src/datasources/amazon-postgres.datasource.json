@@ -1,5 +1,5 @@
 {
-  "name": "amazonpostgres",
+  "name": "AmazonPostgres",
   "connector": "postgresql",
   "url": "postgres://wjjwxpufccwusu:cc0cc7971c244e238e931de9917d22cfcd6bd697adeae0cc05fd001b8757cff5@ec2-46-137-121-216.eu-west-1.compute.amazonaws.com:5432/dft8sqo8avl24q",
   "host": "ec2-46-137-121-216.eu-west-1.compute.amazonaws.com",
