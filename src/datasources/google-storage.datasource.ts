@@ -1,6 +1,6 @@
 import {inject} from '@loopback/core';
 import {juggler} from '@loopback/repository';
-//import * as config from './google-storage.datasource.json';
+import * as config from './google-storage.datasource.json';
 
 let newConfig = `{
   "name": "GoogleStorage",
