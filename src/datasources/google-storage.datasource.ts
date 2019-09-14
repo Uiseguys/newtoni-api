@@ -16,6 +16,7 @@ let newConfig = {
     process.env.GOOGLE_STORAGE_AUTH_PROVIDER_X509_CERT_URL,
   client_x509_cert_url: process.env.GOOGLE_STORAGE_CLIENT_X509_CERT_URL,
 };
+newConfig = JSON.stringify(newConfig);
 
 export class GoogleStorageDataSource extends juggler.DataSource {
   static dataSourceName = 'GoogleStorage';
