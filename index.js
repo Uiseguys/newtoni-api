@@ -1,6 +1,12 @@
 const application = require('./dist');
 const fs = require('fs');
 
+// Create google folder to contain authentication key if it doesn't exist
+if (!fs.existsSync("./src/datasources/google")) {
+    fs.mkdirSync("./src/datasources/google");
+    console.log("created google folder");
+}
+
 /* Create Google Cloud Storage Key from environment Variables */
 let googleStorageKey = `{
     "type": "${process.env.GOOGLE_STORAGE_TYPE}",
@@ -14,12 +20,11 @@ let googleStorageKey = `{
     "auth_provider_x509_cert_url": "${process.env.GOOGLE_STORAGE_AUTH_PROVIDER_X509_CERT_URL}",
     "client_x509_cert_url": "${process.env.GOOGLE_STORAGE_CLIENT_X509_CERT_URL}"
 }`;
+console.log("Random stuff" + process.env.GOOGLE_STORAGE_PRIVATE_KEY);
+
 googleStorageKey = JSON.parse(googleStorageKey);
 googleStorageKey = JSON.stringify(googleStorageKey);
-if (!fs.existsSync("./src/datasources/google")) {
-    fs.mkdirSync("./src/datasources/google");
-    console.log("created google folder");
-}
+
 fs.writeFile("./src/datasources/google/auth.json", googleStorageKey, "utf-8", err => {
     if (err) { return console.log(err); } return console.log("Key File has been created successfully");
 });
