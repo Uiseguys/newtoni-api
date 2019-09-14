@@ -46,6 +46,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@google-cloud/storage": "^3.2.1",
     "@loopback/boot": "^1.5.3",
     "@loopback/context": "^1.21.4",
     "@loopback/core": "^1.9.3",
@@ -60,7 +61,8 @@
     "loopback-component-storage": "^3.6.3",
     "loopback-connector-mysql": "^5.4.2",
     "loopback-connector-postgresql": "^3.7.0",
-    "loopback-connector-rest": "^3.4.2"
+    "loopback-connector-rest": "^3.4.2",
+    "multiparty": "^4.2.1"
   },
   "devDependencies": {
     "@loopback/build": "^2.0.8",

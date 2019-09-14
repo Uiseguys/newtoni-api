@@ -1,8 +1,0 @@
-{
-  "name": "GoogleStorage",
-  "connector": "loopback-component-storage",
-  "provider": "google",
-  "keyFilename": "./src/datasources/google/auth.json",
-  "projectId": "weingut-schneckenhof",
-  "nameConflict": "makeUnique"
-}
