@@ -20,7 +20,7 @@ export class GoogleStorageDataSource extends juggler.DataSource {
 	static dataSourceName = 'GoogleStorage';
 
 	constructor(
-		@inject('datasources.config.GoogleStorage', {
+		@inject('datasources.newConfig.GoogleStorage', {
 			optional: true,
 		})
 		dsConfig: object = newConfig,
