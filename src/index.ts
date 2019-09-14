@@ -1,7 +1,6 @@
 import {NewtoniApiApplication} from './application';
 import {ApplicationConfig} from '@loopback/core';
 import {GoogleStorageServiceProvider} from './providers/google-storage.provider';
-import * as fs from 'fs';
 
 export {NewtoniApiApplication};
 
