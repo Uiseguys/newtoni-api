@@ -20,7 +20,7 @@ let googleStorageKey = `{
     "auth_provider_x509_cert_url": "${process.env.GOOGLE_STORAGE_AUTH_PROVIDER_X509_CERT_URL}",
     "client_x509_cert_url": "${process.env.GOOGLE_STORAGE_CLIENT_X509_CERT_URL}"
 }`;
-console.log("Random stuff" + process.env.GOOGLE_STORAGE_PRIVATE_KEY);
+console.log("This is what the Google Storage Key looks like\n" + googleStorageKey);
 
 googleStorageKey = JSON.parse(googleStorageKey);
 googleStorageKey = JSON.stringify(googleStorageKey);
