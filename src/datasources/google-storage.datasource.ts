@@ -2,8 +2,12 @@ import {inject} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 import * as config from './google-storage.datasource.json';
 
-let newConfig = {
-  ...config,
+const newConfig = {
+  name: 'GoogleStorage',
+  connector: 'loopback-component-storage',
+  provider: 'google',
+  projectId: 'weingut-schneckenhof',
+  nameConflict: 'makeUnique',
   type: process.env.GOOGLE_STORAGE_TYPE,
   project_id: process.env.GOOGLE_STORAGE_PROJECT_ID,
   private_key_id: process.env.GOOGLE_STORAGE_PRIVATE_KEY_ID,
@@ -16,13 +20,12 @@ let newConfig = {
     process.env.GOOGLE_STORAGE_AUTH_PROVIDER_X509_CERT_URL,
   client_x509_cert_url: process.env.GOOGLE_STORAGE_CLIENT_X509_CERT_URL,
 };
-newConfig = JSON.stringify(newConfig);
 
 export class GoogleStorageDataSource extends juggler.DataSource {
   static dataSourceName = 'GoogleStorage';
 
   constructor(
-    @inject('datasources.config.GoogleStorage', {
+    @inject(newConfig.name, {
       optional: true,
     })
     dsConfig: object = newConfig,
