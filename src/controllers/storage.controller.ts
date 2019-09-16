@@ -10,7 +10,6 @@ import {
 import {inject} from '@loopback/context';
 import {Storage} from '@google-cloud/storage';
 import * as multiparty from 'multiparty';
-import * as fs from 'fs';
 
 // Instantiation of Google Storage Client
 const storage = new Storage();
@@ -28,8 +27,14 @@ export class StorageController {
   @post('/storage/upload', {
     responses: {
       '200': {
-        description: 'Uploaded File to Google Bucket Storage',
-        content: {'application/json': {schema: {type: 'object'}}},
+        description: 'Successfully Uploaded File to Google Bucket Storage',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+            },
+          },
+        },
       },
     },
   })
@@ -47,7 +52,7 @@ export class StorageController {
     })
     req: Request,
     @param.query.string('folder') folder?: string,
-  ): Promise<void> {
+  ): Promise<object> {
     // This function checks if the incoming requet has a folder query
     // If it does it returns the provided string if doesn't it returns an
     // empty string
@@ -58,9 +63,6 @@ export class StorageController {
       // Check to see if the file extension is that of an image
       const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(file.path);
       if (fileExtensionCheck) {
-        console.log(
-          '######### Is file the right filetype? ' + fileExtensionCheck,
-        );
         // Check if folder query exists
         const folderExists = (folder: string | undefined) => {
           if (folder) {
@@ -71,22 +73,27 @@ export class StorageController {
 
         // Extract filename and extension using regex
         // This works for both paths in linux and windows
-        const regex = /[^\\^\/]+\..+$/.exec(file.path);
+        const regexFileExt = /[^\\^\/]+\..+$/.exec(file.path);
 
         // Use the google storage client library to upload the file
         storage.bucket('newtoni').upload(
           file.path,
           {
-            destination: `${folderExists(folder)}/${regex}`,
+            destination: `${folderExists(folder)}/${regexFileExt}`,
           },
           (err, file) => {
             if (err != null) {
-              return console.log(err);
+              return err;
+            }
+            if (file) {
+              this.res.end(file);
+              return file;
             }
           },
         );
       }
       if (!file) return console.log('File was not found');
     });
+    return {};
   }
 }
