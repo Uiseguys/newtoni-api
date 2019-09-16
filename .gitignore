@@ -67,4 +67,4 @@ typings/
 *.lock
 
 # Ignore Keys
-/keys
+/keys/google/auth.json
