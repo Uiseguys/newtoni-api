@@ -65,3 +65,6 @@ typings/
 
 # Package Manager lock files
 *.lock
+
+# Ignore Keys
+/keys
