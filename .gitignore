@@ -65,3 +65,6 @@ typings/
 
 # Package Manager lock files
 *.lock
+
+# Authentication keys shouldn't be uploaded
+/keys
