@@ -2,7 +2,11 @@ const application = require('./dist');
 const fs = require('fs');
 
 // Create google folder to contain authentication key if it doesn't exist
-if (process.env.GOOGLE_STORAGE_SERVICE_KEY)) {
+if (process.env.GOOGLE_STORAGE_SERVICE_KEY) {
+  fs.mkdirSync('./keys/google', {recursive: true});
+  console.log('created google folder');
+  
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   /* Create Google Cloud Storage Key from environment Variables */
   let googleStorageKey = process.env.GOOGLE_STORAGE_SERVICE_KEY;
 
