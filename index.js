@@ -5,20 +5,21 @@ const fs = require('fs');
 if (process.env.GOOGLE_STORAGE_SERVICE_KEY) {
   fs.mkdirSync('./keys/google', {recursive: true});
   console.log('created google folder');
-  
+
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  /* Create Google Cloud Storage Key from environment Variables */
-  let googleStorageKey = process.env.GOOGLE_STORAGE_SERVICE_KEY;
+    /* Create Google Cloud Storage Key from environment Variables */
+    let googleStorageKey = process.env.GOOGLE_STORAGE_SERVICE_KEY;
 
-  googleStorageKey = JSON.parse(googleStorageKey);
-  googleStorageKey = JSON.stringify(googleStorageKey);
+    googleStorageKey = JSON.parse(googleStorageKey);
+    googleStorageKey = JSON.stringify(googleStorageKey);
 
-  fs.writeFile('./keys/google/auth.json', googleStorageKey, 'utf-8', err => {
-    if (err) {
-      return console.log(err);
-    }
-    return console.log('Key File has been created successfully');
-  });
+    fs.writeFile('./keys/google/auth.json', googleStorageKey, 'utf-8', err => {
+      if (err) {
+        return console.log(err);
+      }
+      return console.log('Key File has been created successfully');
+    });
+  }
 }
 
 module.exports = application;
