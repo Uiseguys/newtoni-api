@@ -5,7 +5,8 @@ const fs = require('fs');
 if (!fs.existsSync('./keys/google')) {
   fs.mkdirSync('./keys/google', {recursive: true});
   console.log('created google folder');
-
+}
+if (process.env.GOOGLE_STORAGE_SERVICE_KEY) {
   /* Create Google Cloud Storage Key from environment Variables */
   let googleStorageKey = process.env.GOOGLE_STORAGE_SERVICE_KEY;
 
@@ -18,9 +19,9 @@ if (!fs.existsSync('./keys/google')) {
     }
     return console.log('Key File has been created successfully');
   });
-
-  module.exports = application;
 }
+
+module.exports = application;
 
 if (require.main === module) {
   // Run the application
