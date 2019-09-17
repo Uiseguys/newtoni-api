@@ -11,18 +11,15 @@ import {
 import {inject} from '@loopback/context';
 import {Storage} from '@google-cloud/storage';
 import * as multiparty from 'multiparty';
+import {promisify} from 'util';
 
 // Instantiation of Google Storage Client
 const storage = new Storage();
-
 /**
  * A simple controller to handle Google Bucket Storage Operations
  */
 export class StorageController {
-  constructor(
-    @inject(RestBindings.Http.REQUEST) private req: Request,
-    @inject(RestBindings.Http.RESPONSE) private res: Response,
-  ) {}
+  constructor() {}
 
   //@post('/storage/upload', {
   //responses: {
@@ -66,7 +63,7 @@ export class StorageController {
       },
     },
   })
-  async upload(
+  upload(
     @requestBody({
       description: 'mutlipart/form-data value.',
       require: true,
@@ -81,58 +78,61 @@ export class StorageController {
       },
     })
     req: Request,
+    @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.query.string('folder') folder?: string,
-  ): Promise<object | void> {
-    try {
-      // This function checks if the incoming requet has a folder query
-      // If it does it returns the provided string if doesn't it returns an
-      // empty string
-      const form = new multiparty.Form();
+  ): Promise<object> {
+    // This function checks if the incoming requet has a folder query
+    // If it does it returns the provided string if doesn't it returns an
+    // empty string
+    let statusCode = 500;
+    let message = 'Something went wrong';
+    const form = new multiparty.Form();
+    return new Promise<object>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
-        this.res.send({status: '200', message: 'It works'});
-        if (err) throw err;
-        const file = files['null'][0];
-        if (file == null) {
-          throw new Error('No file has been uploaded');
+        if (err) {
+          return reject(err);
+        }
+        if (!files['null']) {
+          err = new Error('No file has been uploaded');
+          return reject(err);
         }
         // Check to see if the file extension is that of an image
-        const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(file.path);
-        if (fileExtensionCheck) {
-          // Check if folder query exists
-          const folderExists = (folder: string | undefined) => {
-            if (folder) {
-              return folder;
-            }
-            return '';
-          };
-
-          // Extract filename and extension using regex
-          // This works for both paths in linux and windows
-          const regexFileExt = /[^\\^\/]+\..+$/.exec(file.path);
-
-          // Use the google storage client library to upload the file
-          return storage.bucket('newtoni').upload(
-            file.path,
-            {
-              destination: `${folderExists(folder)}/${regexFileExt}`,
-            },
-            (err, file) => {
-              if (err != null) {
-                throw err;
+        if (files['null']) {
+          const file = files['null'][0];
+          const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(file.path);
+          if (fileExtensionCheck) {
+            // Check if folder query exists
+            const folderExists = (folder: string | undefined) => {
+              if (folder) {
+                return folder;
               }
-              if (file) {
-                this.res
-                  .status(200)
-                  .send({status: '200', message: 'File successfully uploaded'});
-              }
-            },
-          );
+              return '';
+            };
+
+            // Extract filename and extension using regex
+            // This works for both paths in linux and windows
+            const regexFileExt = /[^\\^\/]+\..+$/.exec(file.path);
+
+            // Use the google storage client library to upload the file
+            storage.bucket('newtoni').upload(
+              file.path,
+              {
+                destination: `${folderExists(folder)}/${regexFileExt}`,
+              },
+              (err, file) => {
+                if (err != null) {
+                  return reject(err);
+                }
+                if (file) {
+                  statusCode = 200;
+                  message = 'Successfully Uploaded Image';
+                  resolve({status: statusCode, msg: message});
+                }
+              },
+            );
+          }
         }
-        if (!file) throw new Error('File was not found');
       });
-    } catch (err) {
-      this.res.status(500);
-      this.res.end(err);
-    }
+    });
   }
 }
