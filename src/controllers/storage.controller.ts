@@ -5,13 +5,12 @@ import {
   Request,
   requestBody,
   Response,
-  getModelSchemaRef,
+  //getModelSchemaRef,
   RestBindings,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
 import {Storage} from '@google-cloud/storage';
 import * as multiparty from 'multiparty';
-import {File} from '../models/file.model';
 
 // Instantiation of Google Storage Client
 const storage = new Storage();
@@ -25,7 +24,36 @@ export class StorageController {
     @inject(RestBindings.Http.RESPONSE) private res: Response,
   ) {}
 
-  // Map to `GET /ping`
+  //@post('/storage/upload', {
+  //responses: {
+  //200: {
+  //content: {
+  //'application/json': {
+  //schema: {
+  //type: 'object',
+  //},
+  //},
+  //},
+  //description: '',
+  //},
+  //},
+  //})
+  //async showBody(
+  //@requestBody({
+  //description: 'multipart/form-data value.',
+  //required: true,
+  //content: {
+  //'multipart/form-data': {
+  //schema: {type: 'object'},
+  //},
+  //},
+  //})
+  //body: unknown,
+  //) {
+  //console.log(body);
+  //return body;
+  //}
+
   @post('/storage/upload', {
     responses: {
       '200': {
@@ -60,7 +88,8 @@ export class StorageController {
       // If it does it returns the provided string if doesn't it returns an
       // empty string
       const form = new multiparty.Form();
-      await form.parse(req, (err, fields, files) => {
+      form.parse(req, (err, fields, files) => {
+        this.res.send({status: '200', message: 'It works'});
         if (err) throw err;
         const file = files['null'][0];
         if (file == null) {
@@ -82,7 +111,7 @@ export class StorageController {
           const regexFileExt = /[^\\^\/]+\..+$/.exec(file.path);
 
           // Use the google storage client library to upload the file
-          storage.bucket('newtoni').upload(
+          return storage.bucket('newtoni').upload(
             file.path,
             {
               destination: `${folderExists(folder)}/${regexFileExt}`,
@@ -92,15 +121,15 @@ export class StorageController {
                 throw err;
               }
               if (file) {
-                console.log(file);
-                return file;
+                this.res
+                  .status(200)
+                  .send({status: '200', message: 'File successfully uploaded'});
               }
             },
           );
         }
         if (!file) throw new Error('File was not found');
       });
-      return {status: 'success', message: 'File Uploaded succesfully'};
     } catch (err) {
       this.res.status(500);
       this.res.end(err);
