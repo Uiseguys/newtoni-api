@@ -21,35 +21,31 @@ const storage = new Storage();
 export class StorageController {
   constructor() {}
 
-  //@post('/storage/upload', {
-  //responses: {
-  //200: {
-  //content: {
-  //'application/json': {
-  //schema: {
-  //type: 'object',
-  //},
-  //},
-  //},
-  //description: '',
-  //},
-  //},
-  //})
-  //async showBody(
-  //@requestBody({
-  //description: 'multipart/form-data value.',
-  //required: true,
-  //content: {
-  //'multipart/form-data': {
-  //schema: {type: 'object'},
-  //},
-  //},
-  //})
-  //body: unknown,
-  //) {
-  //console.log(body);
-  //return body;
-  //}
+  @get('/storage/images/{folder}', {
+    responses: {
+      '200': {
+        description:
+          'Retrieval of images from a folder in a Google Storage Bucket',
+        content: {
+          'application/json': {
+            schema: {type: 'object'},
+          },
+        },
+      },
+    },
+  })
+  async getImages(
+    @param.path.string('folder') folder: string,
+  ): Promise<object> {
+    const [files] = await storage.bucket('newtoni').getFiles({prefix: folder});
+    return files.map((item, index) => {
+      return {
+        id: item.metadata.id,
+        name: item.metadata.name,
+        selfLink: item.metadata.selfLink,
+      };
+    });
+  }
 
   @post('/storage/upload', {
     responses: {
@@ -78,7 +74,6 @@ export class StorageController {
       },
     })
     req: Request,
-    @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.query.string('folder') folder?: string,
   ): Promise<object> {
     // This function checks if the incoming requet has a folder query
@@ -90,10 +85,12 @@ export class StorageController {
     return new Promise<object>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) {
+          console.log(err);
           return reject(err);
         }
         if (!files['null']) {
           err = new Error('No file has been uploaded');
+          console.log(err);
           return reject(err);
         }
         // Check to see if the file extension is that of an image
@@ -121,6 +118,7 @@ export class StorageController {
               },
               (err, file) => {
                 if (err != null) {
+                  console.log(err);
                   return reject(err);
                 }
                 if (file) {
