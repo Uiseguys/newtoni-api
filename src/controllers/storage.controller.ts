@@ -1,6 +1,7 @@
 import {
   get,
   post,
+  del,
   param,
   Request,
   requestBody,
@@ -40,8 +41,8 @@ export class StorageController {
     const [files] = await storage.bucket('newtoni').getFiles({prefix: folder});
     return files.map((item, index) => {
       return {
-        id: item.metadata.id,
-        name: item.metadata.name,
+        id: item.id,
+        name: item.name,
         selfLink: item.metadata.selfLink,
       };
     });
@@ -131,6 +132,28 @@ export class StorageController {
           }
         }
       });
+    });
+  }
+
+  @del('/storage/delete', {
+    responses: {
+      '204': {
+        description: 'File DELETED successfully',
+      },
+    },
+  })
+  async deleteFile(@param.query.string('id') id: string): Promise<object> {
+    return new Promise<object>(async (resolve, reject) => {
+      try {
+        await storage
+          .bucket('newtoni')
+          .file(decodeURIComponent(id))
+          .delete();
+        resolve({status: 'Success', msg: 'File has been deleted'});
+      } catch (err) {
+        console.log('####### Error ' + err.message);
+        reject({msg: err.message});
+      }
     });
   }
 }
