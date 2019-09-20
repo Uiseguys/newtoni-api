@@ -136,14 +136,14 @@ export class StorageController {
     });
   }
 
-  @del('/storage/delete', {
+  @del('/storage/delete/{id}', {
     responses: {
       '204': {
         description: 'File DELETED successfully',
       },
     },
   })
-  async deleteFile(@param.query.string('id') id: string): Promise<object> {
+  async deleteFile(@param.query.path('id') id: string): Promise<object> {
     return new Promise<object>(async (resolve, reject) => {
       try {
         await storage
