@@ -1,0 +1,11 @@
+function Buffer(arg, encodingOrOffset, length) {
+  showFlaggedDeprecation();
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new ERR_INVALID_ARG_TYPE('string', 'string', arg);
+    }
+    return Buffer.alloc(arg);
+  }
+  return Buffer.from(arg, encodingOrOffset, length);
+}

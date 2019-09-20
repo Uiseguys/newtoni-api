@@ -13,6 +13,7 @@ import {inject} from '@loopback/context';
 import {Storage} from '@google-cloud/storage';
 import * as multiparty from 'multiparty';
 import {promisify} from 'util';
+import * as fs from 'fs';
 
 // Instantiation of Google Storage Client
 const storage = new Storage();
@@ -150,6 +151,81 @@ export class StorageController {
           .file(decodeURIComponent(id))
           .delete();
         resolve({status: 'Success', msg: 'File has been deleted'});
+      } catch (err) {
+        console.log('####### Error ' + err.message);
+        reject({msg: err.message});
+      }
+    });
+  }
+
+  // Get a single file as base64 buffer
+  @get('/storage/image/{id}', {
+    responses: {
+      '200': {
+        description: 'Download a from the Google Storage Bucket',
+        content: {
+          'application/octet-stream': {
+            schema: {type: 'object'},
+          },
+        },
+      },
+    },
+  })
+  async getImageURL(
+    @param.path.string('id') id: string,
+    @inject(RestBindings.Http.RESPONSE) res: Response,
+  ): Promise<object | void> {
+    return new Promise<object>(async (resolve, reject) => {
+      try {
+        const options = {
+          version: 'v4' as 'v4',
+          action: 'read' as 'read',
+          expires: Date.now() + 15 * 60 * 1000,
+        };
+        const [url] = await storage
+          .bucket('newtoni')
+          .file(decodeURIComponent(id))
+          .getSignedUrl(options);
+        console.log(url);
+        resolve({url: url});
+      } catch (err) {
+        console.log('####### Error ' + err.message);
+        reject({msg: err.message});
+      }
+    });
+  }
+
+  // Get all files from a folder
+  @get('/storage/download/{folder}', {
+    responses: {
+      '200': {
+        description: 'Download a from the Google Storage Bucket',
+        content: {
+          'application/json': {
+            schema: {type: 'object'},
+          },
+        },
+      },
+    },
+  })
+  async downloadFiles(
+    @param.path.string('id') id: string,
+    @inject(RestBindings.Http.RESPONSE) res: Response,
+  ): Promise<object | void> {
+    return new Promise<object>(async (resolve, reject) => {
+      try {
+        await storage
+          .bucket('newtoni')
+          .file(decodeURIComponent(id))
+          .download()
+          .then(data => {
+            //res.writeHead(200, {'content-type': 'image/jpg'});
+            resolve(data);
+          })
+          .catch(err => {
+            console.log(err.message);
+            reject({err});
+          });
       } catch (err) {
         console.log('####### Error ' + err.message);
         reject({msg: err.message});
