@@ -23,7 +23,7 @@ const storage = new Storage();
 export class StorageController {
   constructor() {}
 
-  @get('/storage/images/{folder}', {
+  @get('/storage/{folder}', {
     responses: {
       '200': {
         description:
@@ -39,14 +39,31 @@ export class StorageController {
   async getImages(
     @param.path.string('folder') folder: string,
   ): Promise<object> {
-    const [files] = await storage.bucket('newtoni').getFiles({prefix: folder});
-    return files.map((item, index) => {
-      return {
-        id: item.id,
-        name: item.name,
-        selfLink: item.metadata.selfLink,
-      };
+    const options = {
+      version: 'v4' as 'v4',
+      action: 'read' as 'read',
+      expires: Date.now() + 15 * 60 * 1000,
+    };
+    const allFiles = await storage.bucket('newtoni').getFiles({prefix: folder});
+    // Apply shift to remove first entry which is the folder name
+    // As Google Cloud Storage perceives it as an object as well
+    await allFiles[0].shift();
+    let signedURL;
+    const mappedFiles = await allFiles[0].map(async item => {
+      signedURL = await storage
+        .bucket('newtoni')
+        .file(item.name)
+        .getSignedUrl(options);
+      return {name: item.name, url: signedURL[0]};
     });
+
+    return await Promise.all(mappedFiles)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err.message;
+      });
   }
 
   @post('/storage/upload', {
@@ -84,7 +101,7 @@ export class StorageController {
     let statusCode = 500;
     let message = 'Something went wrong';
     const form = new multiparty.Form();
-    return new Promise<object>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) {
           console.log(err);
@@ -143,7 +160,7 @@ export class StorageController {
       },
     },
   })
-  async deleteFile(@param.query.path('id') id: string): Promise<object> {
+  async deleteFile(@param.path.string('id') id: string): Promise<object> {
     return new Promise<object>(async (resolve, reject) => {
       try {
         await storage
@@ -152,7 +169,6 @@ export class StorageController {
           .delete();
         resolve({status: 'Success', msg: 'File has been deleted'});
       } catch (err) {
-        console.log('####### Error ' + err.message);
         reject({msg: err.message});
       }
     });
@@ -186,46 +202,7 @@ export class StorageController {
           .bucket('newtoni')
           .file(decodeURIComponent(id))
           .getSignedUrl(options);
-        console.log(url);
         resolve({url: url});
-      } catch (err) {
-        console.log('####### Error ' + err.message);
-        reject({msg: err.message});
-      }
-    });
-  }
-
-  // Get all files from a folder
-  @get('/storage/download/{folder}', {
-    responses: {
-      '200': {
-        description: 'Download a from the Google Storage Bucket',
-        content: {
-          'application/json': {
-            schema: {type: 'object'},
-          },
-        },
-      },
-    },
-  })
-  async downloadFiles(
-    @param.path.string('id') id: string,
-    @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<object | void> {
-    return new Promise<object>(async (resolve, reject) => {
-      try {
-        await storage
-          .bucket('newtoni')
-          .file(decodeURIComponent(id))
-          .download()
-          .then(data => {
-            //res.writeHead(200, {'content-type': 'image/jpg'});
-            resolve(data);
-          })
-          .catch(err => {
-            console.log(err.message);
-            reject({err});
-          });
       } catch (err) {
         console.log('####### Error ' + err.message);
         reject({msg: err.message});
