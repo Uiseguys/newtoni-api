@@ -36,26 +36,91 @@ export class StorageController {
       },
     },
   })
-  async getImages(
-    @param.path.string('folder') folder: string,
-  ): Promise<object> {
+  async getFiles(@param.path.string('folder') folder: string): Promise<object> {
+    // Options for the Signed URLs
     const options = {
       version: 'v4' as 'v4',
       action: 'read' as 'read',
-      expires: Date.now() + 15 * 60 * 1000,
+      expires: Date.now() + 5 * 60 * 1000, // Signed URL expires in 5 mins
     };
     const allFiles = await storage.bucket('newtoni').getFiles({prefix: folder});
     // Apply shift to remove first entry which is the folder name
     // As Google Cloud Storage perceives it as an object as well
-    await allFiles[0].shift();
+    const noFolderObjects = (item: {name: string}) => {
+      // Creating an array of the available foldernames and filtering them out
+      const folderArray = [
+        'editions-images/',
+        'news-images/',
+        'publications-images/',
+        'tmp/',
+      ];
+      // Return item only if it does not include any of the folder names
+      return !(folderArray.indexOf(item.name) >= 0);
+    };
     let signedURL;
-    const mappedFiles = await allFiles[0].map(async item => {
-      signedURL = await storage
-        .bucket('newtoni')
-        .file(item.name)
-        .getSignedUrl(options);
-      return {name: item.name, url: signedURL[0]};
-    });
+    const mappedFiles = await allFiles[0]
+      .filter(noFolderObjects)
+      .map(async item => {
+        signedURL = await storage
+          .bucket('newtoni')
+          .file(item.name)
+          .getSignedUrl(options);
+        return {id: item.id, name: item.name, url: signedURL[0]};
+      });
+
+    return await Promise.all(mappedFiles)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err.message;
+      });
+  }
+
+  @get('/storage/all', {
+    responses: {
+      '200': {
+        description:
+          'Retrieval of images from a folder in a Google Storage Bucket',
+        content: {
+          'application/json': {
+            schema: {type: 'object'},
+          },
+        },
+      },
+    },
+  })
+  async getAllFiles(): Promise<object> {
+    // Options for the Signed URLs
+    const options = {
+      version: 'v4' as 'v4',
+      action: 'read' as 'read',
+      expires: Date.now() + 5 * 60 * 1000, // Signed URL expires in 5 mins
+    };
+    const allFiles = await storage.bucket('newtoni').getFiles();
+    // Using Filter to avoid folder names to remove first entry which is the folder name
+    // As Google Cloud Storage perceives it as an object as well
+    const noFolderObjects = (item: {name: string}) => {
+      // Creating an array of the available foldernames and filtering them out
+      const folderArray = [
+        'editions-images/',
+        'news-images/',
+        'publications-images/',
+        'tmp/',
+      ];
+      // Return item only if it does not include any of the folder names
+      return !(folderArray.indexOf(item.name) >= 0);
+    };
+    let signedURL;
+    const mappedFiles = await allFiles[0]
+      .filter(noFolderObjects)
+      .map(async item => {
+        signedURL = await storage
+          .bucket('newtoni')
+          .file(item.name)
+          .getSignedUrl(options);
+        return {id: item.id, name: item.name, url: signedURL[0]};
+      });
 
     return await Promise.all(mappedFiles)
       .then(data => {
@@ -191,7 +256,7 @@ export class StorageController {
     @param.path.string('id') id: string,
     @inject(RestBindings.Http.RESPONSE) res: Response,
   ): Promise<object | void> {
-    return new Promise<object>(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         const options = {
           version: 'v4' as 'v4',
@@ -204,7 +269,6 @@ export class StorageController {
           .getSignedUrl(options);
         resolve({url: url});
       } catch (err) {
-        console.log('####### Error ' + err.message);
         reject({msg: err.message});
       }
     });
