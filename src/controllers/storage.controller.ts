@@ -158,7 +158,6 @@ export class StorageController {
       },
     })
     req: Request,
-    @param.query.string('folder') folder?: string,
   ): Promise<object> {
     // This function checks if the incoming requet has a folder query
     // If it does it returns the provided string if doesn't it returns an
@@ -172,33 +171,23 @@ export class StorageController {
           console.log(err);
           return reject(err);
         }
-        if (!files['null']) {
+        if (!files['file']) {
           err = new Error('No file has been uploaded');
           console.log(err);
           return reject(err);
         }
         // Check to see if the file extension is that of an image
-        if (files['null']) {
+        if (files['file']) {
           let fileArr = [];
-          await files['null'].forEach(
+          await files['file'].forEach(
             (item: {path: string; originalFilename: string}, index: number) => {
               const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(item.path);
               if (fileExtensionCheck) {
-                // Check if folder query exists
-                const folderExists = (folder: string | undefined) => {
-                  if (folder) {
-                    return folder;
-                  }
-                  reject({msg: 'No folder has been selected'});
-                };
-
                 // Use the google storage client library to upload the file
                 storage.bucket('newtoni').upload(
                   item.path,
                   {
-                    destination: `${folderExists(folder)}/${
-                      item.originalFilename
-                    }`,
+                    destination: `tmp/${item.originalFilename}`,
                   },
                   (err, file) => {
                     if (err != null) {
