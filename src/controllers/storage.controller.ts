@@ -166,8 +166,8 @@ export class StorageController {
     let statusCode = 500;
     let message = 'Something went wrong';
     const form = new multiparty.Form();
-    return new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
+    return new Promise(async (resolve, reject) => {
+      await form.parse(req, async (err, fields, files) => {
         if (err) {
           console.log(err);
           return reject(err);
@@ -179,40 +179,43 @@ export class StorageController {
         }
         // Check to see if the file extension is that of an image
         if (files['null']) {
-          const file = files['null'][0];
-          const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(file.path);
-          if (fileExtensionCheck) {
-            // Check if folder query exists
-            const folderExists = (folder: string | undefined) => {
-              if (folder) {
-                return folder;
+          let fileArr = [];
+          await files['null'].forEach(
+            (item: {path: string; originalFilename: string}, index: number) => {
+              const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(item.path);
+              if (fileExtensionCheck) {
+                // Check if folder query exists
+                const folderExists = (folder: string | undefined) => {
+                  if (folder) {
+                    return folder;
+                  }
+                  reject({msg: 'No folder has been selected'});
+                };
+
+                // Use the google storage client library to upload the file
+                storage.bucket('newtoni').upload(
+                  item.path,
+                  {
+                    destination: `${folderExists(folder)}/${
+                      item.originalFilename
+                    }`,
+                  },
+                  (err, file) => {
+                    if (err != null) {
+                      console.log(err);
+                      return reject(err);
+                    }
+                    if (file) {
+                      fileArr[index] = file;
+                    }
+                  },
+                );
               }
-              return '';
-            };
-
-            // Extract filename and extension using regex
-            // This works for both paths in linux and windows
-            const regexFileExt = /[^\\^\/]+\..+$/.exec(file.path);
-
-            // Use the google storage client library to upload the file
-            storage.bucket('newtoni').upload(
-              file.path,
-              {
-                destination: `${folderExists(folder)}/${regexFileExt}`,
-              },
-              (err, file) => {
-                if (err != null) {
-                  console.log(err);
-                  return reject(err);
-                }
-                if (file) {
-                  statusCode = 200;
-                  message = 'Successfully Uploaded Image';
-                  resolve({status: statusCode, msg: message});
-                }
-              },
-            );
-          }
+            },
+          );
+          statusCode = 200;
+          message = 'Successfully Uploaded Image(s)';
+          resolve({status: statusCode, msg: message});
         }
       });
     });
@@ -240,7 +243,7 @@ export class StorageController {
   }
 
   // Get a single file as base64 buffer
-  @get('/storage/image/{id}', {
+  @get('/storage/file/{id}', {
     responses: {
       '200': {
         description: 'Download a from the Google Storage Bucket',
@@ -252,7 +255,7 @@ export class StorageController {
       },
     },
   })
-  async getImageURL(
+  async getFileUrl(
     @param.path.string('id') id: string,
     @inject(RestBindings.Http.RESPONSE) res: Response,
   ): Promise<object | void> {
