@@ -33,10 +33,8 @@ export class Editions extends Entity {
   })
   post: string;
 
-  @property({
-    type: 'string',
-  })
-  image: string;
+  @property.array(Object, {required: true})
+  image: object[] | void[];
 
   @property({
     type: 'date',
