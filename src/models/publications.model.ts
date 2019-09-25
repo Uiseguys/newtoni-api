@@ -27,8 +27,11 @@ export class Publications extends Entity {
   })
   price: number;
 
-  @property.array(Object, {required: true})
-  image: object[];
+  @property({
+    type: 'string',
+    required: true,
+  })
+  image: string;
 
   @property({
     type: 'boolean',

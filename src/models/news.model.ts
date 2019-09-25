@@ -33,9 +33,12 @@ export class News extends Entity {
   })
   post: string;
 
-  @property.array(Object, {required: true})
-  image: object[];
-
+  @property({
+    type: 'string',
+    required: true,
+  })
+  image: string;
+  
   @property({
     type: 'date',
     default: '$now',
