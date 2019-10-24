@@ -17,20 +17,26 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
-import {Publications} from '../models';
-import {PublicationsRepository} from '../repositories';
+import {inject} from '@loopback/context';
+import {Publication} from '../models';
+import {PublicationRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
 
 export class PublicationsController {
   constructor(
-    @repository(PublicationsRepository)
-    public publicationsRepository : PublicationsRepository,
+    @repository(PublicationRepository)
+    public publicationRepository: PublicationRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private user: UserProfile,
   ) {}
 
+  @authenticate('BasicStrategy')
   @post('/publications', {
     responses: {
       '200': {
         description: 'Publications model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Publications)}},
+        content: {'application/json': {schema: getModelSchemaRef(Publication)}},
       },
     },
   })
@@ -38,13 +44,13 @@ export class PublicationsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Publications, {exclude: ['id']}),
+          schema: getModelSchemaRef(Publication, {exclude: ['id']}),
         },
       },
     })
-    publications: Omit<Publications, 'id'>,
-  ): Promise<Publications> {
-    return this.publicationsRepository.create(publications);
+    publication: Omit<Publication, 'id'>,
+  ): Promise<Publication> {
+    return this.publicationRepository.create(publication);
   }
 
   @get('/publications/count', {
@@ -56,9 +62,10 @@ export class PublicationsController {
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Publications)) where?: Where<Publications>,
+    @param.query.object('where', getWhereSchemaFor(Publication))
+    where?: Where<Publication>,
   ): Promise<Count> {
-    return this.publicationsRepository.count(where);
+    return this.publicationRepository.count(where);
   }
 
   @get('/publications', {
@@ -67,18 +74,20 @@ export class PublicationsController {
         description: 'Array of Publications model instances',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(Publications)},
+            schema: {type: 'array', items: getModelSchemaRef(Publication)},
           },
         },
       },
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Publications)) filter?: Filter<Publications>,
-  ): Promise<Publications[]> {
-    return this.publicationsRepository.find(filter);
+    @param.query.object('filter', getFilterSchemaFor(Publication))
+    filter?: Filter<Publication>,
+  ): Promise<Publication[]> {
+    return this.publicationRepository.find(filter);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/publications', {
     responses: {
       '200': {
@@ -91,28 +100,30 @@ export class PublicationsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Publications, {partial: true}),
+          schema: getModelSchemaRef(Publication, {partial: true}),
         },
       },
     })
-    publications: Publications,
-    @param.query.object('where', getWhereSchemaFor(Publications)) where?: Where<Publications>,
+    publication: Publication,
+    @param.query.object('where', getWhereSchemaFor(Publication))
+    where?: Where<Publication>,
   ): Promise<Count> {
-    return this.publicationsRepository.updateAll(publications, where);
+    return this.publicationRepository.updateAll(publication, where);
   }
 
   @get('/publications/{id}', {
     responses: {
       '200': {
         description: 'Publications model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Publications)}},
+        content: {'application/json': {schema: getModelSchemaRef(Publication)}},
       },
     },
   })
-  async findById(@param.path.number('id') id: number): Promise<Publications> {
-    return this.publicationsRepository.findById(id);
+  async findById(@param.path.number('id') id: number): Promise<Publication> {
+    return this.publicationRepository.findById(id);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/publications/{id}', {
     responses: {
       '204': {
@@ -125,15 +136,16 @@ export class PublicationsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Publications, {partial: true}),
+          schema: getModelSchemaRef(Publication, {partial: true}),
         },
       },
     })
-    publications: Publications,
+    publication: Publication,
   ): Promise<void> {
-    await this.publicationsRepository.updateById(id, publications);
+    await this.publicationRepository.updateById(id, publication);
   }
 
+  @authenticate('BasicStrategy')
   @put('/publications/{id}', {
     responses: {
       '204': {
@@ -143,11 +155,12 @@ export class PublicationsController {
   })
   async replaceById(
     @param.path.number('id') id: number,
-    @requestBody() publications: Publications,
+    @requestBody() publication: Publication,
   ): Promise<void> {
-    await this.publicationsRepository.replaceById(id, publications);
+    await this.publicationRepository.replaceById(id, publication);
   }
 
+  @authenticate('BasicStrategy')
   @del('/publications/{id}', {
     responses: {
       '204': {
@@ -156,6 +169,6 @@ export class PublicationsController {
     },
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.publicationsRepository.deleteById(id);
+    await this.publicationRepository.deleteById(id);
   }
 }

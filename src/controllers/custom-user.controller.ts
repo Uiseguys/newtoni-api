@@ -23,14 +23,20 @@ import {
 import {inject} from '@loopback/context';
 import {CustomUser} from '../models';
 import {CustomUserRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
+
 import * as bcrypt from 'bcrypt';
 
 export class CustomUserController {
   constructor(
     @repository(CustomUserRepository)
     public customUserRepository: CustomUserRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private user: UserProfile,
   ) {}
 
+  @authenticate('BasicStrategy')
   @post('/custom-users', {
     responses: {
       '200': {

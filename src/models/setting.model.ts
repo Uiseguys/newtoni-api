@@ -1,34 +1,26 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({settings: {strict: false}})
-export class Resources extends Entity {
+export class Setting extends Entity {
+  @property({
+    type: 'string',
+    required: true,
+  })
+  key: string;
+
+  @property({
+    type: 'object',
+    default: {},
+  })
+  value?: object;
+
   @property({
     type: 'number',
     id: true,
-  })
-  id?: number;
-
-  @property({
-    type: 'string',
     required: true,
+    default: 0,
   })
-  resourceId: string;
-
-  @property({
-    type: 'string',
-  })
-  weblinkUrl?: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  originalFilename: string;
-
-  @property({
-    type: 'string',
-  })
-  type?: string;
+  id: number;
 
   // Define well-known properties here
 
@@ -36,13 +28,13 @@ export class Resources extends Entity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
-  constructor(data?: Partial<Resources>) {
+  constructor(data?: Partial<Setting>) {
     super(data);
   }
 }
 
-export interface ResourcesRelations {
+export interface SettingRelations {
   // describe navigational properties here
 }
 
-export type ResourcesWithRelations = Resources & ResourcesRelations;
+export type SettingWithRelations = Setting & SettingRelations;

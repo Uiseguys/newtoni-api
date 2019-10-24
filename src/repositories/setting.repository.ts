@@ -1,16 +1,16 @@
 import {DefaultCrudRepository} from '@loopback/repository';
-import {Settings, SettingsRelations} from '../models';
+import {Setting, SettingRelations} from '../models';
 import {AmazonPostgresDataSource} from '../datasources';
 import {inject} from '@loopback/core';
 
-export class SettingsRepository extends DefaultCrudRepository<
-  Settings,
-  typeof Settings.prototype.id,
-  SettingsRelations
+export class SettingRepository extends DefaultCrudRepository<
+  Setting,
+  typeof Setting.prototype.id,
+  SettingRelations
 > {
   constructor(
     @inject('datasources.AmazonPostgres') dataSource: AmazonPostgresDataSource,
   ) {
-    super(Settings, dataSource);
+    super(Setting, dataSource);
   }
 }

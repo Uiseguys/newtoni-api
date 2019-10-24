@@ -1,6 +1,0 @@
-{
-  "name": "GoogleStorage",
-  "connector": "rest",
-  "baseURL": "https://www.googleapis.com",
-  "crud": false
-}

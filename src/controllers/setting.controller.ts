@@ -17,20 +17,20 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
-import {Settings} from '../models';
-import {SettingsRepository} from '../repositories';
+import {Setting} from '../models';
+import {SettingRepository} from '../repositories';
 
-export class SettingsController {
+export class SettingController {
   constructor(
-    @repository(SettingsRepository)
-    public settingsRepository : SettingsRepository,
+    @repository(SettingRepository)
+    public settingRepository: SettingRepository,
   ) {}
 
   @post('/settings', {
     responses: {
       '200': {
         description: 'Settings model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Settings)}},
+        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
       },
     },
   })
@@ -38,13 +38,13 @@ export class SettingsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Settings, {exclude: ['id']}),
+          schema: getModelSchemaRef(Setting, {exclude: ['id']}),
         },
       },
     })
-    settings: Omit<Settings, 'id'>,
-  ): Promise<Settings> {
-    return this.settingsRepository.create(settings);
+    settings: Omit<Setting, 'id'>,
+  ): Promise<Setting> {
+    return this.settingRepository.create(settings);
   }
 
   @get('/settings/count', {
@@ -56,9 +56,10 @@ export class SettingsController {
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Settings)) where?: Where<Settings>,
+    @param.query.object('where', getWhereSchemaFor(Setting))
+    where?: Where<Setting>,
   ): Promise<Count> {
-    return this.settingsRepository.count(where);
+    return this.settingRepository.count(where);
   }
 
   @get('/settings', {
@@ -67,16 +68,17 @@ export class SettingsController {
         description: 'Array of Settings model instances',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(Settings)},
+            schema: {type: 'array', items: getModelSchemaRef(Setting)},
           },
         },
       },
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Settings)) filter?: Filter<Settings>,
-  ): Promise<Settings[]> {
-    return this.settingsRepository.find(filter);
+    @param.query.object('filter', getFilterSchemaFor(Setting))
+    filter?: Filter<Setting>,
+  ): Promise<Setting[]> {
+    return this.settingRepository.find(filter);
   }
 
   @patch('/settings', {
@@ -91,26 +93,27 @@ export class SettingsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Settings, {partial: true}),
+          schema: getModelSchemaRef(Setting, {partial: true}),
         },
       },
     })
-    settings: Settings,
-    @param.query.object('where', getWhereSchemaFor(Settings)) where?: Where<Settings>,
+    setting: Setting,
+    @param.query.object('where', getWhereSchemaFor(Setting))
+    where?: Where<Setting>,
   ): Promise<Count> {
-    return this.settingsRepository.updateAll(settings, where);
+    return this.settingRepository.updateAll(setting, where);
   }
 
   @get('/settings/{id}', {
     responses: {
       '200': {
         description: 'Settings model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Settings)}},
+        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
       },
     },
   })
-  async findById(@param.path.number('id') id: number): Promise<Settings> {
-    return this.settingsRepository.findById(id);
+  async findById(@param.path.number('id') id: number): Promise<Setting> {
+    return this.settingRepository.findById(id);
   }
 
   @patch('/settings/{id}', {
@@ -125,13 +128,13 @@ export class SettingsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Settings, {partial: true}),
+          schema: getModelSchemaRef(Setting, {partial: true}),
         },
       },
     })
-    settings: Settings,
+    settings: Setting,
   ): Promise<void> {
-    await this.settingsRepository.updateById(id, settings);
+    await this.settingRepository.updateById(id, settings);
   }
 
   @put('/settings/{id}', {
@@ -143,9 +146,9 @@ export class SettingsController {
   })
   async replaceById(
     @param.path.number('id') id: number,
-    @requestBody() settings: Settings,
+    @requestBody() setting: Setting,
   ): Promise<void> {
-    await this.settingsRepository.replaceById(id, settings);
+    await this.settingRepository.replaceById(id, setting);
   }
 
   @del('/settings/{id}', {
@@ -156,6 +159,6 @@ export class SettingsController {
     },
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.settingsRepository.deleteById(id);
+    await this.settingRepository.deleteById(id);
   }
 }
