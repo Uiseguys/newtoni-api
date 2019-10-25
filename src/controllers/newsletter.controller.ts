@@ -233,7 +233,7 @@ export class NewsletterController {
     await this.newsletterRepository.replaceById(id, newsletter);
   }
 
-  @patch('/newsletters/unsubscribe', {
+  @del('/newsletters/{id}', {
     responses: {
       '204': {
         description: 'Newsletter DELETE success',
@@ -241,7 +241,6 @@ export class NewsletterController {
     },
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    // await this.newsletterRepository.deleteById(id);
-    await this.newsletterRepository.update(newsletter, where);
+    await this.newsletterRepository.deleteById(id);
   }
 }
