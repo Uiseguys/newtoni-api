@@ -5,3 +5,4 @@ export * from './order.model';
 export * from './publication.model';
 export * from './setting.model';
 export * from './resource.model';
+export * from './newsletter.model';

@@ -1,35 +1,33 @@
 import {Entity, model, property} from '@loopback/repository';
+import * as crypto from 'crypto';
 
 @model({settings: {strict: false}})
-export class Resource extends Entity {
+export class Newsletter extends Entity {
   @property({
     type: 'number',
-    id: true,
     generated: true,
+    id: true,
   })
   id?: number;
 
   @property({
     type: 'string',
     required: true,
+    index: {unique: true},
   })
-  resourceId: string;
+  email: string;
 
   @property({
-    type: 'string',
+    type: 'boolean',
+    default: true,
   })
-  weblinkUrl?: string;
+  subscribed?: boolean;
 
   @property({
-    type: 'string',
-    required: true,
+    type: 'date',
+    default: '$now',
   })
-  originalFilename: string;
-
-  @property({
-    type: 'string',
-  })
-  type?: string;
+  create_time?: string;
 
   // Define well-known properties here
 
@@ -37,13 +35,13 @@ export class Resource extends Entity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
-  constructor(data?: Partial<Resource>) {
+  constructor(data?: Partial<Newsletter>) {
     super(data);
   }
 }
 
-export interface ResourceRelations {
+export interface NewsletterRelations {
   // describe navigational properties here
 }
 
-export type ResourceWithRelations = Resource & ResourceRelations;
+export type NewsletterWithRelations = Newsletter & NewsletterRelations;

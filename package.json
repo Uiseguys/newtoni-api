@@ -65,6 +65,7 @@
     "loopback-connector-postgresql": "^3.7.0",
     "loopback-connector-rest": "^3.4.2",
     "multiparty": "^4.2.1",
+    "nodemailer": "^6.3.1",
     "passport": "^0.4.0",
     "passport-http": "^0.3.0"
   },
@@ -73,6 +74,7 @@
     "@loopback/eslint-config": "^4.0.1",
     "@loopback/testlab": "^1.7.4",
     "@types/node": "^10.14.15",
+    "@types/nodemailer": "^6.2.2",
     "@types/passport": "^1.0.1",
     "@types/passport-http": "^0.3.8",
     "@typescript-eslint/eslint-plugin": "^2.0.0",

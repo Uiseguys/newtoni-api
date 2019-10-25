@@ -5,3 +5,4 @@ export * from './edition.repository';
 export * from './publication.repository';
 export * from './setting.repository';
 export * from './resource.repository';
+export * from './newsletter.repository';

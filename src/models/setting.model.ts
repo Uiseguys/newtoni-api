@@ -17,8 +17,7 @@ export class Setting extends Entity {
   @property({
     type: 'number',
     id: true,
-    required: true,
-    default: 0,
+    generated: true,
   })
   id: number;
 

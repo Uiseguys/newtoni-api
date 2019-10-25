@@ -17,15 +17,21 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {Setting} from '../models';
 import {SettingRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
 
 export class SettingController {
   constructor(
     @repository(SettingRepository)
     public settingRepository: SettingRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private user: UserProfile,
   ) {}
 
+  @authenticate('BasicStrategy')
   @post('/settings', {
     responses: {
       '200': {
@@ -43,10 +49,13 @@ export class SettingController {
       },
     })
     settings: Omit<Setting, 'id'>,
+    @param.query.object('where', getWhereSchemaFor(Setting))
+    where?: Where<Setting>,
   ): Promise<Setting> {
-    return this.settingRepository.create(settings);
+    return this.settingRepository.create(settings, where);
   }
 
+  @authenticate('BasicStrategy')
   @get('/settings/count', {
     responses: {
       '200': {
@@ -62,6 +71,7 @@ export class SettingController {
     return this.settingRepository.count(where);
   }
 
+  @authenticate('BasicStrategy')
   @get('/settings', {
     responses: {
       '200': {
@@ -81,6 +91,7 @@ export class SettingController {
     return this.settingRepository.find(filter);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/settings', {
     responses: {
       '200': {
@@ -104,53 +115,7 @@ export class SettingController {
     return this.settingRepository.updateAll(setting, where);
   }
 
-  @get('/settings/{id}', {
-    responses: {
-      '200': {
-        description: 'Settings model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
-      },
-    },
-  })
-  async findById(@param.path.number('id') id: number): Promise<Setting> {
-    return this.settingRepository.findById(id);
-  }
-
-  @patch('/settings/{id}', {
-    responses: {
-      '204': {
-        description: 'Settings PATCH success',
-      },
-    },
-  })
-  async updateById(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Setting, {partial: true}),
-        },
-      },
-    })
-    settings: Setting,
-  ): Promise<void> {
-    await this.settingRepository.updateById(id, settings);
-  }
-
-  @put('/settings/{id}', {
-    responses: {
-      '204': {
-        description: 'Settings PUT success',
-      },
-    },
-  })
-  async replaceById(
-    @param.path.number('id') id: number,
-    @requestBody() setting: Setting,
-  ): Promise<void> {
-    await this.settingRepository.replaceById(id, setting);
-  }
-
+  @authenticate('BasicStrategy')
   @del('/settings/{id}', {
     responses: {
       '204': {
