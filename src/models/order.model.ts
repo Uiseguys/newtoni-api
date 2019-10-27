@@ -35,9 +35,9 @@ export class Order extends Entity {
 
   @property({
     type: 'date',
-    required: true,
+    default: '$now',
   })
-  created: string;
+  created?: string;
 
   @property({
     type: 'date',

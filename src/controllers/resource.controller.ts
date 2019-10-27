@@ -15,6 +15,7 @@ import {
   Response,
   getWhereSchemaFor,
   getModelSchemaRef,
+  getFilterSchemaFor,
   RestBindings,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
@@ -51,26 +52,45 @@ export class ResourceController {
       },
     },
   })
-  async getAllFiles(): Promise<object> {
+  async getAllFiles(
+    @param.query.object('filter', getFilterSchemaFor(Resource))
+    filter?: Filter<Resource>,
+  ): Promise<object> {
     const allFiles = await storage
       .bucket('newtoni')
       .getFiles({prefix: 'images'});
     // Apply shift to remove first entry which is the folder name
     // As Google Cloud Storage perceives it as an object as well
-    const noFolderObject = (item: {name: string}) => {
-      // Return item only if it does not include any of the wine-images
-      // folder name
-      return !('images/' == item.name);
+    let count = 0;
+    // Custom filter object function
+    const filterObj = (item: {name: string}) => {
+      if (filter != undefined) {
+        if (filter.skip != undefined && filter.limit != undefined) {
+          if (filter.skip == 0 && count <= filter.limit) {
+            count++;
+            return !('images/' == item.name);
+          } else if (
+            count > filter.skip * filter.limit &&
+            count <= (filter.skip + 1) * filter.limit
+          ) {
+            count++;
+            return !('images/' == item.name);
+          } else {
+            count++;
+            return !true;
+          }
+        }
+      } else {
+        return !('images/' == item.name);
+      }
     };
-    const mappedFiles = await allFiles[0]
-      .filter(noFolderObject)
-      .map(async item => {
-        return {
-          id: item.id,
-          name: item.name,
-          url: `/resources/download/${item.name.replace('images/', '')}`,
-        };
-      });
+    const mappedFiles = await allFiles[0].filter(filterObj).map(async item => {
+      return {
+        id: item.id,
+        name: item.name,
+        url: `/resources/download/${item.name.replace('images/', '')}`,
+      };
+    });
 
     return await Promise.all(mappedFiles)
       .then(data => {
@@ -120,12 +140,12 @@ export class ResourceController {
       await form.parse(req, async (err, fields, files) => {
         if (err) {
           console.log(err);
-          return reject(err);
+          reject(err);
         }
         if (!files['file']) {
           err = new Error('No file has been uploaded');
           console.log(err);
-          return reject(err);
+          reject(err);
         }
         // Check to see if the file extension is that of an image
         if (files['file']) {
@@ -143,7 +163,7 @@ export class ResourceController {
                   (err, file) => {
                     if (err != null) {
                       console.log(err);
-                      return reject(err);
+                      reject(err);
                     }
                     if (file) {
                       fileArr[index] = file;
