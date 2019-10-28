@@ -77,7 +77,7 @@ export class NewsletterController {
         where: {email: newsletter.email},
       })
       .then(data => {
-        return data[0];
+        return data;
       })
       .catch(err => {
         res.contentType('application/json');
@@ -126,7 +126,7 @@ export class NewsletterController {
         });
       });
 
-    if (!findEmailKey) {
+    if (!(findEmailKey.length > 0)) {
       const testEmail = /^[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\@[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\.\w\w\w?(\.\w\w\w?)?$/.test(
         newsletter.email,
       );
@@ -182,7 +182,7 @@ export class NewsletterController {
         where: {email: newsletter.email, subscribed: true},
       })
       .then(data => {
-        return data[0];
+        return data;
       })
       .catch(err => {
         res.statusCode = 500;
@@ -194,7 +194,7 @@ export class NewsletterController {
         });
       });
 
-    if (!isEmailSubscribed) {
+    if (!(isEmailSubscribed.length > 0)) {
       const date = new Date().getTime();
       newsletter.unsubscribe_hash = crypto
         .createHash('md5')
@@ -315,7 +315,7 @@ export class NewsletterController {
         where: {unsubscribe_hash: hash},
       })
       .then(data => {
-        return data[0];
+        return data;
       })
       .catch(err => {
         res.statusCode = 400;
@@ -327,7 +327,7 @@ export class NewsletterController {
         });
       });
 
-    if (!isHashAvailable) {
+    if (!(isHashAvailable.length > 0)) {
       res.statusCode = 400;
       return {
         error: {
@@ -377,13 +377,13 @@ export class NewsletterController {
       to: emailSettings.to,
       cc: emailSettings.cc,
       subject: '✨ New-Toni Press: Email Unsubscription',
-      text: `The email ${isHashAvailable.email} has unsubscribed`,
-      html: `<p>The email ${isHashAvailable.email} has unsubscribed</p>`,
+      text: `The email ${isHashAvailable[0].email} has unsubscribed`,
+      html: `<p>The email ${isHashAvailable[0].email} has unsubscribed</p>`,
     });
 
     const userInfo = await transporter.sendMail({
       from: `"New-Toni Press Newsletter" <${emailSettings.from}>`,
-      to: isHashAvailable.email,
+      to: isHashAvailable[0].email,
       subject: '✨ New-Toni Press: You Have Successfully Been Unsubscribed',
       text:
         'You are now successfully unsubscribed from Newtoni Press, if you change your mind head over to our website and resubmit your email address',
