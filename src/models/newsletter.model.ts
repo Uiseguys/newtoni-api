@@ -1,5 +1,4 @@
 import {Entity, model, property} from '@loopback/repository';
-import * as crypto from 'crypto';
 
 @model({settings: {strict: false}})
 export class Newsletter extends Entity {
@@ -22,6 +21,11 @@ export class Newsletter extends Entity {
     default: true,
   })
   subscribed?: boolean;
+
+  @property({
+    type: 'string',
+  })
+  unsubscribe_hash?: string;
 
   @property({
     type: 'date',

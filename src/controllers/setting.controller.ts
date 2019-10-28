@@ -36,7 +36,7 @@ export class SettingController {
     responses: {
       '200': {
         description: 'Settings model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
+        content: {'application/json': {schema: {type: 'object'}}},
       },
     },
   })
@@ -44,15 +44,22 @@ export class SettingController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Setting, {exclude: ['id']}),
+          schema: getModelSchemaRef(Setting, {partial: true}),
         },
       },
     })
-    settings: Omit<Setting, 'id'>,
+    settings: Setting,
     @param.query.object('where', getWhereSchemaFor(Setting))
     where?: Where<Setting>,
-  ): Promise<Setting> {
-    return this.settingRepository.create(settings, where);
+  ): Promise<Setting | Count> {
+    const findkey = await this.settingRepository.find({
+      where: {key: settings.key},
+    });
+    if (findkey.length > 0) {
+      return this.settingRepository.updateAll(settings, {key: settings.key});
+    }
+    settings.id = Math.floor(1000 + Math.random() * 9000);
+    return this.settingRepository.create(settings);
   }
 
   @post('/settings/netlify', {
@@ -72,8 +79,6 @@ export class SettingController {
       },
     })
     reqBody: object,
-    @param.query.string('deploy')
-    deploy: string,
   ): Promise<Count | Setting> {
     const findNetlify = await this.settingRepository.find({
       where: {key: 'netlifyHook'},
