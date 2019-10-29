@@ -53,7 +53,7 @@ export class NewsletterController {
     @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.query.object('where', getWhereSchemaFor(Newsletter))
     where?: Where<Newsletter>,
-  ): Promise<Newsletter | Count | undefined> {
+  ): Promise<Newsletter | Count | object | undefined> {
     //const transporter = nodemailer.createTransport({
     //host: 'smtp.strato.de',
     //port: 465,
@@ -78,16 +78,6 @@ export class NewsletterController {
       })
       .then(data => {
         return data;
-      })
-      .catch(err => {
-        res.contentType('application/json');
-        res.statusCode = 500;
-        return res.send({
-          error: {
-            statusCode: 500,
-            message: 'Error Fetching Email Settings',
-          },
-        });
       });
 
     const emailSettings: any = await this.settingRepository
@@ -95,17 +85,10 @@ export class NewsletterController {
         where: {key: 'email'},
       })
       .then(data => {
-        return data[0].value;
-      })
-      .catch(err => {
-        res.contentType('application/json');
-        res.statusCode = 500;
-        return res.send({
-          error: {
-            statusCode: 500,
-            message: 'Error Fetching Email Settings',
-          },
-        });
+        if (data.length > 0) {
+          return data[0].value;
+        }
+        return null;
       });
 
     const newsletterSettings: any = await this.settingRepository
@@ -113,18 +96,31 @@ export class NewsletterController {
         where: {key: 'newsletter'},
       })
       .then(data => {
-        return data[0].value;
-      })
-      .catch(err => {
-        res.contentType('application/json');
-        res.statusCode = 500;
-        return res.send({
-          error: {
-            statusCode: 500,
-            message: 'Error Fetching Newsletter Settings',
-          },
-        });
+        if (data.length > 0) {
+          return data[0].value;
+        }
+        return null;
       });
+
+    if (!emailSettings) {
+      res.statusCode = 400;
+      return {
+        error: {
+          stausCode: 400,
+          message: 'Email Settings Have Not Been Set',
+        },
+      };
+    }
+
+    if (!newsletterSettings) {
+      res.statusCode = 400;
+      return {
+        error: {
+          stausCode: 400,
+          message: 'Newsletter Email Settings Have Not Been Set',
+        },
+      };
+    }
 
     if (!(findEmailKey.length > 0)) {
       const testEmail = /^[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\@[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\.\w\w\w?(\.\w\w\w?)?$/.test(
@@ -183,15 +179,6 @@ export class NewsletterController {
       })
       .then(data => {
         return data;
-      })
-      .catch(err => {
-        res.statusCode = 500;
-        res.send({
-          error: {
-            statusCode: 500,
-            message: 'Error Fetching Newsletter Settings',
-          },
-        });
       });
 
     if (!(isEmailSubscribed.length > 0)) {
@@ -227,17 +214,22 @@ export class NewsletterController {
         'Old Email has been resubscribed Message sent to subscriber: %s',
         userInfo.messageId,
       );
-      return this.newsletterRepository.updateAll(newsletter as Newsletter, {
-        email: newsletter.email,
-      });
+
+      return this.newsletterRepository.updateAll(
+        {...newsletter, subscribed: true} as Newsletter,
+        {
+          email: newsletter.email,
+        },
+      );
     }
+
     res.statusCode = 400;
-    res.send({
+    return {
       error: {
         stausCode: 400,
         message: 'Email is already subscribed',
       },
-    });
+    };
   }
 
   @get('/newsletters/count', {
@@ -359,18 +351,21 @@ export class NewsletterController {
         where: {key: 'email'},
       })
       .then(data => {
-        return data[0].value;
-      })
-      .catch(err => {
-        res.contentType('application/json');
-        res.statusCode = 500;
-        res.send({
-          error: {
-            statusCode: 500,
-            message: 'Error Fetching Email Settings',
-          },
-        });
+        if (data.length > 0) {
+          return data[0].value;
+        }
+        return null;
       });
+
+    if (!emailSettings) {
+      res.statusCode = 400;
+      return {
+        error: {
+          stausCode: 400,
+          message: 'Email Settings Have Not Been Set',
+        },
+      };
+    }
 
     const info = await transporter.sendMail({
       from: `"New-Toni Press Newsletter" <${emailSettings.from}>`,
@@ -399,6 +394,7 @@ export class NewsletterController {
       'Email Unsubscription Message sent to unsubscriber: %s',
       info.messageId,
     );
+
     return this.newsletterRepository.updateAll(
       {subscribed: false, unsubscribe_hash: ''} as Newsletter,
       {where: {unsubscribe_hash: hash}},
