@@ -54,14 +54,6 @@ export class NewsletterController {
     @param.query.object('where', getWhereSchemaFor(Newsletter))
     where?: Where<Newsletter>,
   ): Promise<Newsletter | Count | object | undefined> {
-    //const transporter = nodemailer.createTransport({
-    //host: 'smtp.strato.de',
-    //port: 465,
-    //auth: {
-    //user: 'newsletter@new-toni.press',
-    //pass: 'Newsletter@@',
-    //},
-    //});
     const testEmail = /^[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\@[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+?(\.\w\w\w?)?$/.test(
       newsletter.email,
     );
@@ -76,12 +68,21 @@ export class NewsletterController {
       };
     }
 
+    //const transporter = nodemailer.createTransport({
+    //host: 'smtp.mailtrap.io',
+    //port: 25,
+    //auth: {
+    //user: 'bc840133129dc4',
+    //pass: '8939349080a608',
+    //},
+    //});
+
     const transporter = nodemailer.createTransport({
-      host: 'smtp.mailtrap.io',
-      port: 25,
+      host: 'smtp.strato.de',
+      port: 465,
       auth: {
-        user: 'bc840133129dc4',
-        pass: '8939349080a608',
+        user: 'newsletter@new-toni.press',
+        pass: 'Newsletter@@',
       },
     });
 
@@ -316,23 +317,24 @@ export class NewsletterController {
       res.location('https://newtoni-press.netlify.com');
       return res.end();
     }
-    //const transporter = nodemailer.createTransport({
-    //host: 'smtp.strato.de',
-    //port: 465,
-    //auth: {
-    //user: 'newsletter@new-toni.press',
-    //pass: 'Newsletter@@',
-    //},
-    //});
 
     const transporter = nodemailer.createTransport({
-      host: 'smtp.mailtrap.io',
-      port: 25,
+      host: 'smtp.strato.de',
+      port: 465,
       auth: {
-        user: 'bc840133129dc4',
-        pass: '8939349080a608',
+        user: 'newsletter@new-toni.press',
+        pass: 'Newsletter@@',
       },
     });
+
+    //const transporter = nodemailer.createTransport({
+    //host: 'smtp.mailtrap.io',
+    //port: 25,
+    //auth: {
+    //user: 'bc840133129dc4',
+    //pass: '8939349080a608',
+    //},
+    //});
 
     const emailSettings: any = await this.settingRepository
       .find({
