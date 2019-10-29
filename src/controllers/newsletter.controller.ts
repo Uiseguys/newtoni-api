@@ -62,6 +62,19 @@ export class NewsletterController {
     //pass: 'Newsletter@@',
     //},
     //});
+    const testEmail = /^[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\@[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+?(\.\w\w\w?)?$/.test(
+      newsletter.email,
+    );
+
+    if (!testEmail) {
+      res.statusCode = 400;
+      return {
+        error: {
+          stausCode: 400,
+          message: 'No Email Has Not Been Provided',
+        },
+      };
+    }
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.mailtrap.io',
@@ -123,54 +136,39 @@ export class NewsletterController {
     }
 
     if (!(findEmailKey.length > 0)) {
-      const testEmail = /^[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\@[^\/\=\#\@\|\:\;\'\"\<\,\>\\\{\[\}\]\`\~\+\*\!\s]+\.\w\w\w?(\.\w\w\w?)?$/.test(
-        newsletter.email,
+      newsletter.unsubscribe_hash = crypto
+        .createHash('md5')
+        .update(`${new Date().toISOString()}$alt3d${newsletter.email}`)
+        .digest('hex');
+      // Mail Trap Testing
+      const info = await transporter.sendMail({
+        from: `"New Toni Press Newsletter" <${emailSettings.from}>`,
+        to: emailSettings.to,
+        cc: emailSettings.cc,
+        subject: '✨ New-Toni Pess: New Newsletter Subscriber',
+        text: `The email ${newsletter.email} has been added to your subscription list`,
+        html: `<p>The email ${newsletter.email} has been added to your subscription list</p>`,
+      });
+
+      const userInfo = await transporter.sendMail({
+        from: `"New-Toni Press Newsletter" <${emailSettings.from}>`,
+        to: newsletter.email,
+        subject: newsletterSettings.newSubscriberSubject,
+        text: `Hi, Your email ${newsletter.email} has been added to your subscription list. If received by mistake unsubscribe https://newtoni-api.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}`,
+        html: `<p>Hi,<br/><br/>${newsletterSettings.newSubscriberMessage}<br/><br/><small style="display: block; margin-top: 30vh; text-align: center">Received this email by mistake <a href="https://newtoni-api.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}">unsubscribe</a></small></p>`,
+      });
+
+      console.log(
+        'New Email Subscriber Message sent to admin: %s',
+        info.messageId,
       );
-      if (testEmail) {
-        const date = new Date().getTime();
-        newsletter.unsubscribe_hash = crypto
-          .createHash('md5')
-          .update(`${date}$alt3d${newsletter.email}`)
-          .digest('hex');
-        // Mail Trap Testing
-        const info = await transporter.sendMail({
-          from: `"New Toni Press Newsletter" <${emailSettings.from}>`,
-          to: emailSettings.to,
-          cc: emailSettings.cc,
-          subject: '✨ New-Toni Pess: New Newsletter Subscriber',
-          text: `The email ${newsletter.email} has been added to your subscription list`,
-          html: `<p>The email ${newsletter.email} has been added to your subscription list</p>`,
-        });
 
-        const userInfo = await transporter.sendMail({
-          from: `"New-Toni Press Newsletter" <${emailSettings.from}>`,
-          to: newsletter.email,
-          subject: newsletterSettings.newSubscriberSubject,
-          text: `Hi, Your email ${newsletter.email} has been added to your subscription list. If received by mistake unsubscribe https://newtoni-api.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}`,
-          html: `<p>Hi,<br/><br/>${newsletterSettings.newSubscriberMessage}<br/><br/><small style="display: block; margin-top: 30vh; text-align: center">Received this email by mistake <a href="https://newtoni-api.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}">unsubscribe</a></small></p>`,
-        });
+      console.log(
+        'New Email Subscriber Message sent to new subscriber: %s',
+        info.messageId,
+      );
 
-        console.log(
-          'New Email Subscriber Message sent to admin: %s',
-          info.messageId,
-        );
-
-        console.log(
-          'New Email Subscriber Message sent to new subscriber: %s',
-          info.messageId,
-        );
-
-        return this.newsletterRepository.create(newsletter as Newsletter);
-      } else {
-        res.contentType('application/json');
-        res.statusCode = 500;
-        res.send({
-          error: {
-            statusCode: 500,
-            message: 'Provided Email is not Valid',
-          },
-        });
-      }
+      return this.newsletterRepository.create(newsletter as Newsletter);
     }
 
     const isEmailSubscribed: any = await this.newsletterRepository
@@ -185,7 +183,7 @@ export class NewsletterController {
       const date = new Date().getTime();
       newsletter.unsubscribe_hash = crypto
         .createHash('md5')
-        .update(`${date}$alt3d${newsletter.email}`)
+        .update(`${new Date().toISOString()}$alt3d${newsletter.email}`)
         .digest('hex');
       // Mail Trap Testing
       const info = await transporter.sendMail({
@@ -308,25 +306,15 @@ export class NewsletterController {
       })
       .then(data => {
         return data;
-      })
-      .catch(err => {
-        res.statusCode = 400;
-        res.send({
-          error: {
-            statusCode: 400,
-            message: 'Error Fetching Key',
-          },
-        });
       });
 
     if (!(isHashAvailable.length > 0)) {
-      res.statusCode = 400;
-      return {
-        error: {
-          statusCode: 400,
-          message: 'No Email is associated with provided key',
-        },
-      };
+      console.log(
+        `${new Date().toISOString()} - GET REQUEST - /newsletters/unsubscribe - No Email is associated with provided path hash`,
+      ),
+        (res.statusCode = 302);
+      res.location('https://newtoni-press.netlify.com');
+      return res.end();
     }
     //const transporter = nodemailer.createTransport({
     //host: 'smtp.strato.de',
@@ -358,13 +346,12 @@ export class NewsletterController {
       });
 
     if (!emailSettings) {
-      res.statusCode = 400;
-      return {
-        error: {
-          stausCode: 400,
-          message: 'Email Settings Have Not Been Set',
-        },
-      };
+      console.log(
+        `${new Date().toISOString()} - GET REQUEST - /newsletters/unsubscribe - Email Settings Have Not Been Set`,
+      );
+      res.statusCode = 302;
+      res.location('https://newtoni-press.netlify.com');
+      return res.end();
     }
 
     const info = await transporter.sendMail({
@@ -392,13 +379,17 @@ export class NewsletterController {
 
     console.log(
       'Email Unsubscription Message sent to unsubscriber: %s',
-      info.messageId,
+      userInfo.messageId,
     );
 
-    return this.newsletterRepository.updateAll(
+    await this.newsletterRepository.updateAll(
       {subscribed: false, unsubscribe_hash: ''} as Newsletter,
       {where: {unsubscribe_hash: hash}},
     );
+
+    res.statusCode = 302;
+    res.location('https://newtoni-press.netlify.com/unsubscribe');
+    return res.end();
   }
 
   @get('/newsletters/{id}', {
