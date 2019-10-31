@@ -84,21 +84,13 @@ export class ResourceController {
         return !('images/' == item.name);
       }
     };
-    const mappedFiles = await allFiles[0].filter(filterObj).map(async item => {
+    return allFiles[0].filter(filterObj).map(item => {
       return {
         id: item.id,
         name: item.name,
         url: `/resources/download/${item.name.replace('images/', '')}`,
       };
     });
-
-    return await Promise.all(mappedFiles)
-      .then(data => {
-        return data;
-      })
-      .catch(err => {
-        return err.message;
-      });
   }
 
   @authenticate('BasicStrategy')
@@ -129,23 +121,40 @@ export class ResourceController {
       },
     })
     req: Request,
-  ): Promise<object> {
+    @inject(RestBindings.Http.RESPONSE) res: Response,
+  ): Promise<object | void> {
     // This function checks if the incoming requet has a folder query
     // If it does it returns the provided string if doesn't it returns an
     // empty string
-    let statusCode = 500;
-    let message = 'Something went wrong';
     const form = new multiparty.Form();
-    return new Promise(async (resolve, reject) => {
-      await form.parse(req, async (err, fields, files) => {
+    return new Promise((resolve, reject) => {
+      form.parse(req, async (err, fields, files) => {
         if (err) {
-          console.log(err);
-          reject(err);
+          console.log(
+            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload - ${
+              err.message
+            }`,
+          );
+          reject({
+            error: {
+              statusCode: 500,
+              message: 'Internal Server Error',
+            },
+          });
         }
         if (!files['file']) {
           err = new Error('No file has been uploaded');
-          console.log(err);
-          reject(err);
+          console.log(
+            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
+              err.message
+            }`,
+          );
+          reject({
+            error: {
+              statusCode: 500,
+              message: 'Internal Server Error',
+            },
+          });
         }
         // Check to see if the file extension is that of an image
         if (files['file']) {
@@ -162,8 +171,18 @@ export class ResourceController {
                   },
                   (err, file) => {
                     if (err != null) {
-                      console.log(err);
-                      reject(err);
+                      console.log(
+                        `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
+                          err.message
+                        }`,
+                      );
+                      res.statusCode = 500;
+                      reject({
+                        error: {
+                          statusCode: 500,
+                          message: 'Internal Server Error',
+                        },
+                      });
                     }
                     if (file) {
                       fileArr[index] = file;
@@ -173,9 +192,12 @@ export class ResourceController {
               }
             },
           );
-          statusCode = 200;
-          message = 'Successfully Uploaded Image(s)';
-          resolve({status: statusCode, msg: message});
+          resolve({
+            info: {
+              statusCode: 200,
+              message: 'Successfully Uploaded Image(s)',
+            },
+          });
         }
       });
     });
@@ -196,25 +218,28 @@ export class ResourceController {
   async findImage(
     @param.path.string('image') image: string,
     @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<void> {
-    return await storage
+  ): Promise<Buffer | object> {
+    return storage
       .bucket('newtoni')
       .file(`images/${image}`)
       .download()
       .then(data => {
         res.contentType('image/jpeg');
-        res.send(data[0]);
+        return data[0];
       })
       .catch(err => {
-        console.log(err.message);
-        res.contentType('application/json');
-        res.statusCode = 404;
-        res.send({
+        console.log(
+          `${new Date().toISOString()} - Error - GET REQUEST - /resources/download - ${
+            err.message
+          }`,
+        );
+        res.statusCode = 500;
+        return {
           error: {
-            statusCode: 404,
-            message: 'Image File not Found',
+            statusCode: 500,
+            message: 'Internal Server Error',
           },
-        });
+        };
       });
   }
 
@@ -230,26 +255,29 @@ export class ResourceController {
     @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.query.object('where', getWhereSchemaFor(Resource))
     where?: Where<Resource>,
-  ): Promise<void> {
-    return await storage
+  ): Promise<Count | object> {
+    return storage
       .bucket('newtoni')
       .getFiles({prefix: 'images'})
       .then(data => {
         const noFolderObject = (item: {name: string}) => {
           return !('images/' == item.name);
         };
-        res.send({count: data[0].filter(noFolderObject).length});
+        return {count: data[0].filter(noFolderObject).length};
       })
       .catch(err => {
-        console.log(err);
-        res.contentType('application/json');
+        console.log(
+          `${new Date().toISOString()} - Error - GET REQUEST - /resources/count - ${
+            err.message
+          }`,
+        );
         res.statusCode = 500;
-        res.send({
+        return {
           error: {
             statusCode: 500,
             message: 'Internal Server Error',
           },
-        });
+        };
       });
   }
 
@@ -264,24 +292,27 @@ export class ResourceController {
   async deleteFile(
     @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.path.string('id') id: string,
-  ): Promise<void> {
-    return await storage
+  ): Promise<object> {
+    return storage
       .bucket('newtoni')
       .file(decodeURIComponent(id))
       .delete()
       .then(data => {
-        res.send(data[0]);
+        return data;
       })
       .catch(err => {
-        console.log(err);
-        res.contentType('application/json');
+        console.log(
+          `${new Date().toISOString()} - Error - DELETE REQUEST - /resources - ${
+            err.message
+          }`,
+        );
         res.statusCode = 500;
-        res.send({
+        return {
           error: {
             statusCode: 500,
             message: 'Internal Server Error',
           },
-        });
+        };
       });
   }
 }
