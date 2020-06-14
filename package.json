@@ -60,6 +60,7 @@
     "@types/bcrypt": "^3.0.0",
     "@types/multiparty": "^0.0.32",
     "bcrypt": "^3.0.6",
+    "cloudinary": "^1.22.0",
     "googleapis": "^43.0.0",
     "loopback-connector-mysql": "^5.4.2",
     "loopback-connector-postgresql": "^3.7.0",

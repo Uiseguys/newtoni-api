@@ -19,24 +19,20 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
-import {Storage} from '@google-cloud/storage';
 import {AuthenticationBindings, authenticate} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {Resource} from '../models';
 import * as multiparty from 'multiparty';
-import {promisify} from 'util';
 import * as fs from 'fs';
 
-// Instantiation of Google Storage Client
-const storage = new Storage();
-/**
- * A simple controller to handle Google Bucket Storage Operations
- */
 export class ResourceController {
+  private cloudinary: object | any;
   constructor(
     @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
     private user: UserProfile,
-  ) {}
+  ) {
+    this.cloudinary = require('cloudinary').v2;
+  }
 
   @authenticate('BasicStrategy')
   @get('/resources/all', {
@@ -53,44 +49,49 @@ export class ResourceController {
     },
   })
   async getAllFiles(
+    @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.query.object('filter', getFilterSchemaFor(Resource))
     filter?: Filter<Resource>,
   ): Promise<object> {
-    const allFiles = await storage
-      .bucket('newtoni')
-      .getFiles({prefix: 'images'});
-    // Apply shift to remove first entry which is the folder name
-    // As Google Cloud Storage perceives it as an object as well
-    let count = 0;
-    // Custom filter object function
-    const filterObj = (item: {name: string}) => {
-      if (filter != undefined) {
-        if (filter.skip != undefined && filter.limit != undefined) {
-          if (filter.skip == 0 && count <= filter.limit) {
-            count++;
-            return !('images/' == item.name);
-          } else if (
-            count > filter.skip * filter.limit &&
-            count <= (filter.skip + 1) * filter.limit
-          ) {
-            count++;
-            return !('images/' == item.name);
-          } else {
-            count++;
-            return !true;
+    return new Promise((resolve, reject) =>
+      this.cloudinary.api.resources_by_tag(
+        'newtoni',
+        {max_results: 500},
+        (err: any | null, data: any | object | null) => {
+          if (err) {
+            console.log(
+              `${new Date().toISOString()} - Error - POST REQUEST - /resources/all - ${
+                err.message
+              }`,
+            );
+            reject({
+              error: {
+                statusCode: 500,
+                message: 'Internal Server Error',
+              },
+            });
           }
-        }
-      } else {
-        return !('images/' == item.name);
-      }
-    };
-    return allFiles[0].filter(filterObj).map(item => {
-      return {
-        id: item.id,
-        name: item.name,
-        url: `/resources/download/${item.name.replace('images/', '')}`,
-      };
-    });
+          if (data.resources.length > 0) {
+            resolve(
+              data.resources.reduce(
+                (acc: [null | object], value: object | any) => {
+                  if (value.public_id != 'newtoni') {
+                    acc.push({
+                      public_id: value.public_id,
+                      url: value.secure_url,
+                    });
+                  }
+                  return acc;
+                },
+                [],
+              ),
+            );
+          } else {
+            resolve([]);
+          }
+        },
+      ),
+    );
   }
 
   @authenticate('BasicStrategy')
@@ -143,46 +144,50 @@ export class ResourceController {
           });
         }
         if (!files['file']) {
-          err = new Error('No file has been uploaded');
+          const msg = 'No file has been added for upload';
           console.log(
-            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
-              err.message
-            }`,
+            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${msg}`,
           );
-          reject({
-            error: {
-              statusCode: 500,
-              message: 'Internal Server Error',
-            },
-          });
+          reject(
+            res.status(400).send({
+              error: {
+                statusCode: 400,
+                message: msg,
+              },
+            }),
+          );
         }
         // Check to see if the file extension is that of an image
         if (files['file']) {
-          let fileArr = [];
+          const fileArr: Array<object | null> = [];
           await files['file'].forEach(
             (item: {path: string; originalFilename: string}, index: number) => {
-              const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(item.path);
+              const fileExtensionCheck = /\.(jpe?g|png|gif)$/.test(item.path);
               if (fileExtensionCheck) {
-                // Use the google storage client library to upload the file
-                storage.bucket('newtoni').upload(
+                // Use the Cloudinary client library to upload the file
+                let itemFilename = item.originalFilename.replace(
+                  /\.(jpe?g|png|gif)$/g,
+                  '',
+                );
+                itemFilename = itemFilename.replace(/\s/g, '_');
+                this.cloudinary.uploader.upload(
                   item.path,
-                  {
-                    destination: `images/${item.originalFilename}`,
-                  },
-                  (err, file) => {
-                    if (err != null) {
+                  {public_id: `newtoni/${itemFilename}`, tags: 'newtoni'},
+                  (newErr: null | Error, file: null | Response) => {
+                    if (newErr != null) {
                       console.log(
                         `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
-                          err.message
+                          newErr.message
                         }`,
                       );
-                      res.statusCode = 500;
-                      reject({
-                        error: {
-                          statusCode: 500,
-                          message: 'Internal Server Error',
-                        },
-                      });
+                      reject(
+                        res.status(500).send({
+                          error: {
+                            statusCode: 500,
+                            message: 'Internal Server Error',
+                          },
+                        }),
+                      );
                     }
                     if (file) {
                       fileArr[index] = file;
@@ -192,55 +197,10 @@ export class ResourceController {
               }
             },
           );
-          resolve({
-            info: {
-              statusCode: 200,
-              message: 'Successfully Uploaded Image(s)',
-            },
-          });
+          resolve(fileArr);
         }
       });
     });
-  }
-
-  @get('/resources/download/{image}', {
-    responses: {
-      '200': {
-        description: 'Download an Image',
-        content: {
-          'image/jpeg': {
-            schema: {type: 'object'},
-          },
-        },
-      },
-    },
-  })
-  async findImage(
-    @param.path.string('image') image: string,
-    @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<Buffer | object> {
-    return storage
-      .bucket('newtoni')
-      .file(`images/${image}`)
-      .download()
-      .then(data => {
-        res.contentType('image/jpeg');
-        return data[0];
-      })
-      .catch(err => {
-        console.log(
-          `${new Date().toISOString()} - Error - GET REQUEST - /resources/download - ${
-            err.message
-          }`,
-        );
-        res.statusCode = 500;
-        return {
-          error: {
-            statusCode: 500,
-            message: 'Internal Server Error',
-          },
-        };
-      });
   }
 
   @get('/resources/count', {
@@ -256,33 +216,27 @@ export class ResourceController {
     @param.query.object('where', getWhereSchemaFor(Resource))
     where?: Where<Resource>,
   ): Promise<Count | object> {
-    return storage
-      .bucket('newtoni')
-      .getFiles({prefix: 'images'})
-      .then(data => {
-        const noFolderObject = (item: {name: string}) => {
-          return !('images/' == item.name);
-        };
-        return {count: data[0].filter(noFolderObject).length};
-      })
-      .catch(err => {
-        console.log(
-          `${new Date().toISOString()} - Error - GET REQUEST - /resources/count - ${
-            err.message
-          }`,
-        );
-        res.statusCode = 500;
-        return {
-          error: {
-            statusCode: 500,
-            message: 'Internal Server Error',
-          },
-        };
-      });
+    return new Promise((resolve, reject) =>
+      this.cloudinary.api.resources_by_tag(
+        'newtoni',
+        {max_results: 500},
+        (err: object | null, data: any | object | null) => {
+          if (err) {
+            reject({
+              error: {
+                statusCode: 500,
+                message: 'Internal Server Error',
+              },
+            });
+          }
+          resolve({count: data.resources.length});
+        },
+      ),
+    );
   }
 
   @authenticate('BasicStrategy')
-  @del('/resources/{id}', {
+  @del('/resources/{public_id}', {
     responses: {
       '204': {
         description: 'File DELETED successfully',
@@ -291,28 +245,22 @@ export class ResourceController {
   })
   async deleteFile(
     @inject(RestBindings.Http.RESPONSE) res: Response,
-    @param.path.string('id') id: string,
+    @param.path.string('public_id') public_id: string,
   ): Promise<object> {
-    return storage
-      .bucket('newtoni')
-      .file(decodeURIComponent(id))
-      .delete()
-      .then(data => {
+    return this.cloudinary.api.delete_resources(
+      [decodeURIComponent(public_id)],
+      (err: null | object, data: null | object) => {
+        if (err) {
+          res.statusCode = 500;
+          return {
+            error: {
+              statusCode: 500,
+              message: 'Internal Server Error',
+            },
+          };
+        }
         return data;
-      })
-      .catch(err => {
-        console.log(
-          `${new Date().toISOString()} - Error - DELETE REQUEST - /resources - ${
-            err.message
-          }`,
-        );
-        res.statusCode = 500;
-        return {
-          error: {
-            statusCode: 500,
-            message: 'Internal Server Error',
-          },
-        };
-      });
+      },
+    );
   }
 }
