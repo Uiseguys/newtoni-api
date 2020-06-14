@@ -3,6 +3,13 @@ import {Entity, model, property} from '@loopback/repository';
 @model({settings: {strict: true}})
 export class Setting extends Entity {
   @property({
+    type: 'number',
+    id: true,
+    required: true,
+  })
+  id: number;
+
+  @property({
     type: 'string',
     required: true,
   })
@@ -13,13 +20,6 @@ export class Setting extends Entity {
     default: {},
   })
   value?: object;
-
-  @property({
-    type: 'number',
-    id: true,
-    required: true,
-  })
-  id: number;
 
   // Define well-known properties here
 
@@ -36,4 +36,4 @@ export interface SettingRelations {
   // describe navigational properties here
 }
 
-export type SettingWithRelations = Setting & SettingRelations;
+export type SettingsWithRelations = Setting & SettingRelations;
