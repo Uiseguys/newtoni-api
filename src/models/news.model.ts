@@ -1,6 +1,6 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model({settings: {strict: false}})
+@model({settings: {strict: true}})
 export class News extends Entity {
   @property({
     type: 'number',
@@ -38,7 +38,7 @@ export class News extends Entity {
     required: true,
   })
   image: string;
-  
+
   @property({
     type: 'date',
     default: '$now',
