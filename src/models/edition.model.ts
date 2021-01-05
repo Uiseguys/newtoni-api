@@ -28,6 +28,12 @@ export class Edition extends Entity {
   author: string;
 
   @property({
+    type: 'number',
+    required: true,
+  })
+  price: number;
+
+  @property({
     type: 'string',
     required: true,
   })

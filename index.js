@@ -1,5 +1,4 @@
 const application = require('./dist');
-const fs = require('fs');
 module.exports = application;
 
 if (require.main === module) {
