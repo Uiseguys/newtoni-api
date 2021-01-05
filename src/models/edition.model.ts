@@ -30,8 +30,36 @@ export class Edition extends Entity {
   @property({
     type: 'number',
     required: true,
+    default: 0,
   })
   price: number;
+
+  @property({
+    type: 'boolean',
+    required: true,
+    default: true,
+  })
+  availability: boolean;
+
+  @property({
+    type: 'number',
+    required: true,
+    default: 0,
+  })
+  content: number;
+
+  @property({
+    type: 'number',
+    required: true,
+    default: 0,
+  })
+  priority: number;
+
+  @property({
+    type: 'number',
+    default: 0,
+  })
+  no: number;
 
   @property({
     type: 'string',
