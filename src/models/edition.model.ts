@@ -73,18 +73,6 @@ export class Edition extends Entity {
   })
   image: string;
 
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  create_time?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  update_time?: string;
-
   // Define well-known properties here
 
   // Indexer property to allow additional data
