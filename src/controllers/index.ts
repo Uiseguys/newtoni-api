@@ -6,3 +6,4 @@ export * from './publication.controller';
 export * from './setting.controller';
 export * from './resource.controller';
 export * from './newsletter.controller';
+export * from './paypal.controller';

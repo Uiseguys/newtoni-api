@@ -31,7 +31,12 @@ export class Order extends Entity {
   @property({
     type: 'object',
   })
-  details?: object;
+  shipping: object;
+
+  @property({
+    type: 'object',
+  })
+  details: object;
 
   @property({
     type: 'date',
@@ -40,9 +45,14 @@ export class Order extends Entity {
   created?: string;
 
   @property({
+    type: 'string',
+  })
+  delivery_status: string;
+
+  @property({
     type: 'date',
   })
-  completed?: string;
+  delivery_date?: string;
 
   // Define well-known properties here
 

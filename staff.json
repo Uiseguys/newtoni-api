@@ -1,0 +1,70 @@
+{
+  "id": "8NS66364X2799530K",
+  "status": "COMPLETED",
+  "purchase_units": [
+    {
+      "reference_id": "default",
+      "shipping": {
+        "name": {"full_name": "John Doe"},
+        "address": {
+          "address_line_1": "Free Trade Zone",
+          "admin_area_2": "Nairobi",
+          "postal_code": "254",
+          "country_code": "KE"
+        }
+      },
+      "payments": {
+        "captures": [
+          {
+            "id": "5SV89219LV779354E",
+            "status": "PENDING",
+            "status_details": {
+              "reason": "RECEIVING_PREFERENCE_MANDATES_MANUAL_ACTION"
+            },
+            "amount": {"currency_code": "EUR", "value": "17.00"},
+            "final_capture": true,
+            "seller_protection": {
+              "status": "ELIGIBLE",
+              "dispute_categories": [
+                "ITEM_NOT_RECEIVED",
+                "UNAUTHORIZED_TRANSACTION"
+              ]
+            },
+            "links": [
+              {
+                "href": "https://api.sandbox.paypal.com/v2/payments/captures/5SV89219LV779354E",
+                "rel": "self",
+                "method": "GET"
+              },
+              {
+                "href": "https://api.sandbox.paypal.com/v2/payments/captures/5SV89219LV779354E/refund",
+                "rel": "refund",
+                "method": "POST"
+              },
+              {
+                "href": "https://api.sandbox.paypal.com/v2/checkout/orders/8NS66364X2799530K",
+                "rel": "up",
+                "method": "GET"
+              }
+            ],
+            "create_time": "2021-01-25T15:24:38Z",
+            "update_time": "2021-01-25T15:24:38Z"
+          }
+        ]
+      }
+    }
+  ],
+  "payer": {
+    "name": {"given_name": "John", "surname": "Doe"},
+    "email_address": "sb-43k0iw4850808@personal.example.com",
+    "payer_id": "PSU26QQGTGTAE",
+    "address": {"country_code": "KE"}
+  },
+  "links": [
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/8NS66364X2799530K",
+      "rel": "self",
+      "method": "GET"
+    }
+  ]
+}
